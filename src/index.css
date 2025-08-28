@@ -1,7 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Barriecito&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Barriecito&family=Freckle+Face&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Ranchers&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Chicle&family=Ranchers&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Chicle&family=Ranchers&family=Spicy+Rice&display=swap');
 
 
 @tailwind base;
@@ -132,7 +130,7 @@ h1, h2, h3, .hero-title, .site-logo {
 }
 
 body {
-  font-family: 'Chicle', serif;
+  font-family: 'Spicy Rice', serif;
   background-color: #fff;
   font-style: normal;
 }
