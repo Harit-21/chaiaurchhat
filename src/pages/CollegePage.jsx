@@ -9,7 +9,7 @@ import AddHostelModal from '../components/AddHostelModal';
 import LoginModal from '../components/LoginModal';
 import { useAuth } from './AuthContext';
 import { useSearchParams } from 'react-router-dom';
-import { apiUrl } from '../api';
+import { apiUrl } from '../api.js';
 
 const CollegePage = () => {
     const { collegeName } = useParams();
@@ -234,3 +234,4 @@ const CollegePage = () => {
 };
 
 export default CollegePage;
+
