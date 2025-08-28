@@ -3,6 +3,7 @@ import '../css/PGDetail/FancyReviewForm.css';
 import { useAuth } from '../pages/AuthContext';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { apiUrl } from '../api';
 
 
 const ratingLabels = {
@@ -188,8 +189,8 @@ const FancyReviewForm = ({ pgName, onClose, step, setStep, pgMetadata, existingR
         };
 
         const endpoint = existingReview?.id
-            ? 'http://localhost:5000/review/update'
-            : 'http://localhost:5000/review/submit';
+            ? `${apiUrl}/review/update`
+            : `${apiUrl}/review/submit`;
 
         const payload = {
             ...reviewData,
