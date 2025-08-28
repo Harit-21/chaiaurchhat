@@ -3,8 +3,7 @@ import '../css/PGDetail/FancyReviewForm.css';
 import { useAuth } from '../pages/AuthContext';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { apiUrl } from '../api';
-
+import { apiUrl } from '../api.js';
 
 const ratingLabels = {
     1: 'Poor',
@@ -582,3 +581,4 @@ const FancyReviewForm = ({ pgName, onClose, step, setStep, pgMetadata, existingR
 };
 
 export default FancyReviewForm;
+
