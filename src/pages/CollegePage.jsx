@@ -9,7 +9,7 @@ import AddHostelModal from '../components/AddHostelModal';
 import LoginModal from '../components/LoginModal';
 import { useAuth } from './AuthContext';
 import { useSearchParams } from 'react-router-dom';
-
+import { apiUrl } from '../api';
 
 const CollegePage = () => {
     const { collegeName } = useParams();
@@ -58,7 +58,7 @@ const CollegePage = () => {
     useEffect(() => {
         const fetchCollege = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/college/${encodeURIComponent(collegeName)}`);
+                const response = await fetch(`${apiUrl}/college/${encodeURIComponent(collegeName)}`);
                 const data = await response.json();
                 console.log("College data:", data);
                 setCollege(data);
@@ -77,7 +77,7 @@ const CollegePage = () => {
 
         const fetchPGs = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/pgs?college_id=${encodeURIComponent(college.id)}`);
+                const response = await fetch(`${apiUrl}/pgs?college_id=${encodeURIComponent(college.id)}`);
                 const data = await response.json();
                 console.log("🚀 PGs for this college:", data);
 
