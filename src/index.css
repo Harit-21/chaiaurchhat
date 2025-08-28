@@ -1,5 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Barriecito&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Barriecito&family=Freckle+Face&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Galindo&family=Ranchers&family=Skranji:wght@400;700&display=swap');
+
 
 @tailwind base;
 @tailwind components;
@@ -124,9 +125,13 @@
   /* medium light gray */
 }
 
+h1, h2, h3, .hero-title, .site-logo {
+  font-family: "Galindo", sans-serif;
+  /* letter-spacing: 2px; */
+}
 
 body {
-  font-family: system-ui;
+  font-family: 'Skranji', serif;
   background-color: #fff;
   font-style: normal;
 }
