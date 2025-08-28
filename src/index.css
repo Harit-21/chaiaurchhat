@@ -1,10 +1,9 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 @import url('https://fonts.googleapis.com/css2?family=Barriecito&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Barriecito&family=Freckle+Face&display=swap');
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   /* Primary color: a confident but approachable red-orange */
