@@ -1,0 +1,351 @@
+.myreviews-bg-header {
+  height: 43vh;
+  background-image: url('https://plus.unsplash.com/premium_photo-1676496046182-356a6a0ed002?q=80&w=1176&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.myreviews-bg-header .myreviews-overlay {
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  height: 55%;
+  right: 0px;
+  display: flex;
+  justify-content: center;
+  align-items: start;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+  padding: 0.8rem 1.8rem;
+  color: black;
+}
+
+.myreviews-bg-header p{
+    font-size: 2rem;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+.myreviews-bg-header:hover p{
+    color: white;
+}
+
+.my-reviews-wrapper {
+    padding: 2rem 1rem;
+    max-width: 900px;
+    margin: auto;
+    color: var(--text-primary);
+}
+
+.my-review-card {
+    background: rgba(255, 255, 255, 0.22); 
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 1.5rem;
+    border: 1px dashed var(--primary);
+    border-radius: 0.87rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+
+.my-review-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+.my-review-header {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: baseline;
+}
+
+.pg-college-line {
+    display: flex;
+    /* flex-direction: column; */
+    gap: 0.5rem;
+}
+
+.pg-name {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.college-name {
+    margin: 5px 0 0 0;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.rating-box {
+    background-color: var(--primary);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: bold;
+    color: #fff;
+    font-size: 0.95rem;
+}
+
+.comment {
+    margin: 1rem 0;
+    font-size: 1.5rem;
+    line-height: 1.6;
+    color: var(--text-primary);
+}
+
+.review-tags span {
+    display: inline-block;
+    margin: 0.3rem 0.4rem 0 0;
+    color: #212121;
+    font-size: 0.9rem;
+    background: #f1f1f1;
+    padding: 3px 8px;
+    border-radius: 6px;
+}
+
+.review-tags span:hover {
+    font-weight: 500;
+    cursor: default;
+}
+
+.review-actions {
+    margin-top: 1.2rem;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.my-reviews-list .helpful-btn {
+    background-color: #f0f0f0;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: #555;
+    cursor: default;
+}
+
+.my-reviews-list button:disabled {
+    opacity: 0.92;
+    cursor: not-allowed;
+}
+
+.view-pg-link {
+    text-decoration: none;
+    background: #007bff;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 0.85rem;
+}
+
+.view-pg-link:hover {
+    background: #0056b3;
+}
+
+.action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.edit-btn,
+.delete-btn {
+    padding: 6px 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.edit-btn {
+    background-color: #ffc107;
+    color: #333;
+}
+
+.delete-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.review-date {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 1rem;
+}
+
+.verified-badge {
+    margin-left: 0.75rem;
+    color: green;
+    font-weight: bold;
+    font-size: 0.85rem;
+}
+
+.sort-filter-bar {
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.sort-filter-bar label {
+    font-weight: bold;
+    font-size: 0.95rem;
+}
+
+@media (max-width: 600px) {
+    .my-review-header {
+        /* flex-direction: column; */
+        align-items: flex-start;
+    }
+
+    .my-review-card{
+        padding: 1.3rem 1rem;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .sort-filter-bar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .view-pg-link,
+    .edit-btn,
+    .delete-btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.edit-modal {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 10px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+}
+
+.edit-modal h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+.edit-modal label {
+    display: block;
+    font-weight: bold;
+    margin-top: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.edit-modal textarea,
+.edit-modal input {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
+
+.edit-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.edit-actions button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.edit-actions button:first-child {
+    background-color: #28a745;
+    color: white;
+}
+
+.edit-actions button:last-child {
+    background-color: #ccc;
+}
+
+.two-column-layout {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.reviews-section {
+  flex: 2;
+}
+
+.wishlist-section {
+  flex: 1;
+  background: #fafafa;
+  padding: 1rem;
+  border-radius: 8px;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: sticky;
+  top: 2rem;
+}
+
+.wishlist-pg-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.wishlist-card {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  border: 1px solid #ddd;
+  padding: 0.5rem;
+  border-radius: 6px;
+  background-color: #fff;
+}
+
+.wishlist-card img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.wishlist-item {
+  text-decoration: none;
+  color: inherit;
+}

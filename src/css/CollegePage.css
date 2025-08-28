@@ -1,0 +1,367 @@
+.college-hero {
+    height: 52vh;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.college-overlay {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+    padding: 1.3rem 1.8rem;
+    color: white;
+}
+
+.pg-controls {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin: 1rem 0 4rem;
+}
+
+.pg-controls input[type="search"] {
+    padding: 0.5rem 0rem 0.5rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 0.7rem;
+    min-width: 230px;
+}
+
+.pg-controls input[type="search"]:focus {
+
+    outline: 2px solid var(--hover);
+}
+
+.select-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.pg-controls select {
+    /* appearance: none; */
+    padding: 10px 40px 10px 10px;
+    /* Space for custom arrow */
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 0.6rem;
+    background-color: #fff;
+    color: #333;
+    min-width: 80px;
+    cursor: pointer;
+    position: relative;
+}
+
+select:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.pg-controls option {
+    padding: 10px;
+    font-size: 16px;
+    color: #333;
+}
+
+.pg-controls button {
+    /* background-color: var(--primary); */
+    color: #212121;
+    border: 1px solid #ccc;
+    border-radius: 0.6rem;
+    padding: 0.5rem 0.7rem;
+    cursor: pointer;
+}
+
+.pg-controls button:hover {
+    border: 1px solid var(--primary);
+}
+
+
+.custom-dropdown {
+    position: relative;
+    /* width: 150px; */
+    user-select: none;
+}
+
+.custom-dropdown-btn {
+    width: 100%;
+    font-size: 16px;
+    border-radius: 8px;
+    background-color: #f3f4f6;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.custom-dropdown-btn:focus {
+    /* outline: 2px solid #3b82f6; */
+    outline-offset: 2px;
+    border: 1px solid var(--primary);
+}
+
+.arrow {
+    border: solid #666;
+    border-width: 0 2px 2px 0;
+    display: inline-block;
+    padding: 3px;
+    margin-left: 10px;
+    transition: transform 0.2s ease;
+}
+
+.arrow.down {
+    transform: rotate(45deg);
+}
+
+.arrow.up {
+    transform: rotate(-135deg);
+}
+
+.custom-dropdown-list {
+    position: absolute;
+    margin-top: 4px;
+    width: 100%;
+    /* max-height: 180px; */
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+.custom-dropdown-option {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.custom-dropdown-option:hover,
+.custom-dropdown-option:focus {
+    background-color: var(--primary-light);
+    color: white;
+    outline: none;
+}
+
+.custom-dropdown-option.selected {
+    font-weight: bold;
+    background-color: var(--primary);
+    color: white;
+}
+
+#reset-button {
+    padding: "0.5rem 1rem";
+    border-radius: "0.6rem";
+    cursor: "pointer";
+    color: var(--suits-reversed);
+    background-color: var(--primary);
+    font-weight: 650;
+}
+
+.location-icon {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 2px;
+}
+
+.location-icon svg {
+    width: 22px;
+    height: 22px;
+}
+
+.college-overlay h1 {
+    font-size: clamp(1.2rem, 3.7vw, 2.3rem);
+    font-weight: bold;
+}
+
+.college-overlay h3 {
+    font-size: clamp(0.8rem, 1.7vw, 1.1rem);
+    font-weight: 500;
+}
+
+@media (max-width: 590px) {
+    .college-overlay {
+        display: block;
+        justify-content: center;
+    }
+}
+
+/* === Main Layout === */
+.college-main {
+    display: flex;
+    gap: 4rem;
+    padding: 2rem 0.95rem;
+    max-width: 93%;
+    margin: auto;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 797px) {
+    .college-main {
+        max-width: 98%;
+        gap: 1.5rem;
+        padding: 0.7rem;
+    }
+}
+
+.college-left {
+    flex: 3;
+    min-width: 350px;
+}
+
+.college-left h2 {
+    font-size: clamp(1.3rem, 3vw, 1.9rem);
+    font-weight: 470;
+    color: var(--suits);
+}
+
+.college-left #descrip {
+    color: var(--suits);
+    margin-bottom: 1.7rem;
+}
+
+.highlightin {
+    color: var(--primary);
+    font-weight: 560;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+    animation: slideIn 0.9s ease-in-out;
+    display: inline-block;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.pg-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.pg-list p {
+    color: var(--text-primary);
+}
+
+@media (max-width: 430px) {
+    .college-left {
+        min-width: 250px;
+    }
+
+    .pg-list {
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+
+    }
+}
+
+.college-right {
+    flex: 1;
+    margin: 5rem 0rem;
+    min-width: 280px;
+}
+
+.forums {
+    background-color: #f9fafa32;
+    padding-bottom: 0.7rem;
+    margin-bottom: 1.5rem;
+    border-radius: 0.9rem;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease;
+    backdrop-filter: blur(3.7px);
+}
+
+.forums:hover {
+    box-shadow: var(--shadow);
+    transform: translateY(-5px);
+}
+
+.college-right h2 {
+    border-radius: 0.9rem 0.9rem 0rem 0rem;
+    color: var(--suits-reversed);
+    font-size: 1.2rem;
+    padding: 0.3rem;
+    margin-bottom: 1rem;
+    background-color: var(--primary);
+}
+
+.forum-list {
+    list-style: none;
+    margin: 1rem;
+}
+
+.forum-list li {
+    margin-bottom: 0.7rem;
+}
+
+.forum-list a {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.forum-list a:hover {
+    text-decoration: underline;
+}
+
+.add-hostel-card {
+    border: 1px dotted var(--primary);
+    background-color: #f9fafb32;
+    border-radius: 0.8rem;
+    padding: 1.5rem;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.11);
+    transition: transform 0.3s ease;
+    backdrop-filter: blur(3.7px);
+}
+
+.add-hostel-card:hover {
+    box-shadow: var(--shadow);
+    transform: translateY(-5px);
+}
+
+.add-hostel-card h3 {
+    font-size: 2rem;
+    font-weight: 580;
+    line-height: 1.2;
+    margin-bottom: 0.9rem;
+    color: var(--primary);
+}
+
+.add-hostel-card p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.add-hostel-card button {
+    background-color: var(--primary);
+    color: var(--suits-reversed);
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.add-hostel-card button:hover {
+    background-color: var(--hover);
+}
+
+#addpg {
+    color: var(--primary);
+    cursor: pointer;
+}
+
+#addpg:hover {
+    text-decoration: underline;
+}

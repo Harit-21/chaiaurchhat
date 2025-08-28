@@ -1,0 +1,119 @@
+.college-pg-card {
+  display: flex;
+  background-color: var(--pg-card);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.college-pg-card:hover {
+  transform: scale(1.02) translateY(-5px);
+  box-shadow: var(--shadow);
+}
+
+.college-pg-card:hover img {
+  transform: scale(1.03);
+}
+
+.pg-image {
+  border-radius: 0.9rem;
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  transition: all 0.2s ease;
+}
+
+.pg-details {
+  padding: 0.5rem 1rem;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  /* justify-content: center; */
+  gap: 0.4rem;
+}
+
+.pg-top-row,
+.pg-bottom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pg-details h4 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.pg-rating {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.pg-rating .star {
+  color: #fbbf24;
+}
+
+.pg-gender {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.pg-review-button {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.3rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.pg-review-button:hover {
+  background-color: #2563eb;
+}
+
+.pg-location {
+  font-size: 0.9rem;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.college-pg-card .wishlist-btn {
+  font-size: 1.1rem;
+  cursor: pointer;
+  position: absolute;
+  bottom: 5px;
+  right: 10px;
+  padding: 1px;
+  transition: transform 0.2s ease;
+}
+
+.wishlist-btn:hover{
+  background: red;
+  border-radius: 1rem;
+  transform: scale(1.2);
+}
+
+.wishlist-btn.active {
+  color: red;
+}
+
+.wishlist-btn.active:hover {
+  background: var(--text-primary);
+}
+
+.wishlist-btn.loading {
+  cursor: wait;
+  opacity: 0.6;
+}
