@@ -3,6 +3,7 @@ import '../css/CollegePgCard.css';
 import { Link, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { apiUrl } from '../api';
 
 
 const CollegePgCard = ({ id, name, gender_type, rating, reviews, image, user, onLoginRequired }) => {
@@ -13,7 +14,7 @@ const CollegePgCard = ({ id, name, gender_type, rating, reviews, image, user, on
   useEffect(() => {
     if (!user) return;
 
-    fetch(`http://localhost:5000/wishlist?email=${encodeURIComponent(user.email)}`)
+    fetch(`${apiUrl}/wishlist?email=${encodeURIComponent(user.email)}`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -38,7 +39,7 @@ const CollegePgCard = ({ id, name, gender_type, rating, reviews, image, user, on
     try {
       if (wishlisted) {
         // Remove from wishlist
-        const res = await fetch('http://localhost:5000/wishlist/remove', {
+        const res = await fetch(`${apiUrl}/wishlist/remove`, {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: user.email, pg_id: id }),
@@ -50,7 +51,7 @@ const CollegePgCard = ({ id, name, gender_type, rating, reviews, image, user, on
         toast.info(`Removed from Wishlist 💔`, { autoClose: 2000 });
       } else {
         // Add to wishlist
-        const res = await fetch('http://localhost:5000/wishlist/add', {
+        const res = await fetch(`${apiUrl}/wishlist/add`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: user.email, pg_id: id }),
