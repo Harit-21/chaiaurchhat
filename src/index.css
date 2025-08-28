@@ -1,6 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Barriecito&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Barriecito&family=Freckle+Face&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Chicle&family=Ranchers&family=Spicy+Rice&display=swap');
-
 
 @tailwind base;
 @tailwind components;
@@ -125,12 +124,9 @@
   /* medium light gray */
 }
 
-h1, h2, h3, .hero-title, .site-logo {
-  font-family: "Ranchers", sans-serif;
-}
 
 body {
-  font-family: 'Spicy Rice', serif;
+  font-family: system-ui;
   background-color: #fff;
   font-style: normal;
 }
