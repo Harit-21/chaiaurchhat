@@ -3,7 +3,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import ConfirmModal from './ConfirmModal';
 import 'react-toastify/dist/ReactToastify.css';
 import '../css/AddHostelModal.css';
-import { apiUrl } from '../api';
+import { apiUrl } from '../api.js';
 
 const AddHostelModal = ({ onClose, defaultCollegeId = null }) => {
     const [colleges, setColleges] = useState([]);
@@ -504,3 +504,4 @@ const AddHostelModal = ({ onClose, defaultCollegeId = null }) => {
 };
 
 export default AddHostelModal;
+
