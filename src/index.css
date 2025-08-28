@@ -1,9 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Barriecito&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Barriecito&family=Freckle+Face&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Ranchers&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Chicle&family=Ranchers&display=swap');
+
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 
 :root {
   /* Primary color: a confident but approachable red-orange */
@@ -123,9 +127,12 @@
   /* medium light gray */
 }
 
+h1, h2, h3, .hero-title, .site-logo {
+  font-family: "Ranchers", sans-serif;
+}
 
 body {
-  font-family: "Freckle Face", system-ui;
+  font-family: 'Chicle', serif;
   background-color: #fff;
   font-style: normal;
 }
