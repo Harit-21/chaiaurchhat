@@ -3,6 +3,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import ConfirmModal from './ConfirmModal';
 import 'react-toastify/dist/ReactToastify.css';
 import '../css/AddHostelModal.css';
+import { apiUrl } from '../api';
 
 const AddHostelModal = ({ onClose, defaultCollegeId = null }) => {
     const [colleges, setColleges] = useState([]);
@@ -28,7 +29,7 @@ const AddHostelModal = ({ onClose, defaultCollegeId = null }) => {
 
     // Fetch colleges
     useEffect(() => {
-        fetch('http://localhost:5000/colleges')
+        fetch(`${apiUrl}/colleges`)
             .then(res => res.json())
             .then(data => {
                 setColleges(data);
@@ -214,7 +215,7 @@ const AddHostelModal = ({ onClose, defaultCollegeId = null }) => {
         setShowConfirm(false); // hide modal
 
         try {
-            const existing = await fetch(`http://localhost:5000/pgs?college_id=${formData.college_id}`);
+            const existing = await fetch(`${apiUrl}/pgs?college_id=${formData.college_id}`);
             const pgList = await existing.json();
             const dup = pgList.find(pg => pg.name.trim().toLowerCase() === formData.name.trim().toLowerCase());
 
@@ -229,7 +230,7 @@ const AddHostelModal = ({ onClose, defaultCollegeId = null }) => {
                 submissionData.image = '';
             }
 
-            const res = await fetch('http://localhost:5000/pgs/add', {
+            const res = await fetch(`${apiUrl}/pgs/add`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(submissionData)
