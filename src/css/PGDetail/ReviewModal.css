@@ -1,0 +1,142 @@
+/* ReviewModal.css */
+
+body.review-overlay-content {
+    overflow: hidden;
+}
+.review-overlay {
+    position: fixed;
+    top: 1.9rem;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.65);
+    z-index: 35;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.review-overlay-content {
+    background: var(--reviewform-bg);
+    backdrop-filter: blur(7px);
+    width: 90%;
+    max-width: 900px;
+    padding: 0rem 0 0.4rem;
+    border-radius: 12px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.4s ease;
+    max-height: 85.5vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+    /* Triggers GPU layer */
+    will-change: transform;
+    /* Hints GPU to prepare */
+}
+
+body.modal-open {
+    overflow: hidden;
+    height: 100vh;
+    position: fixed;
+    width: 100%;
+}
+
+.modal-header-sticky {
+  position: sticky;
+  top: 0;
+  background: var(--suits-reversed);
+  z-index: 10;
+  border-bottom: 0.37px solid #ddd;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 1rem;
+  position: relative;
+}
+
+.form-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ccc;
+  transition: background 0.3s ease;
+}
+
+.dot.active {
+  background: #007bff;
+}
+
+.dot.done {
+  background: #28a745;
+}
+
+.dot.upcoming {
+  background: #ddd;
+}
+
+.modal-back-button {
+    position: absolute;
+    background-color: transparent;
+    border: none;
+    font-size: 1rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modal-back-button:hover {
+    color: var(--suits);
+    background: transparent;
+    transform: scale(1.1);
+}
+
+.review-overlay .close-button {
+    font-size: 1.3rem;
+    font-weight: 900;
+    background: transparent;
+    border: none;
+    color: var(--suits);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.close-button:hover {
+    color: var(--suits);
+    transform: scale(1.2);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}

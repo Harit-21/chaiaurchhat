@@ -1,0 +1,162 @@
+.reality-check-bar {
+  padding: 1.5rem 1rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.reality-check-bar h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary, #222);
+}
+
+.strip-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.strip-item {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  align-items: center;
+  background-color: var(--strip-bg, #f9f9f9);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  transition: background 0.3s;
+}
+
+.strip-item:hover {
+  background-color: var(--strip-hover, #f1f5f9);
+}
+
+.strip-feature {
+  font-weight: 600;
+  color: #333;
+}
+
+.strip-expected {
+  color: #3182ce;
+  font-weight: 500;
+}
+
+.strip-got {
+  font-weight: 600;
+  text-align: right;
+}
+
+.strip-got.good {
+  color: #2f855a;
+}
+.strip-got.warn {
+  color: #d69e2e;
+}
+.strip-got.bad {
+  color: #e53e3e;
+}
+.strip-got.blackreality {
+  color: #000;
+}
+
+/* Dark mode support */
+html.dark .reality-check-bar {
+  --strip-bg: #1e293b;
+  --strip-hover: #2d3748;
+  --text-primary: #f8fafc;
+}
+
+
+
+
+
+/* .reality-check-bar {
+  padding: 1.5rem 1rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.reality-check-bar h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary, #222);
+}
+
+.strip-scroll {
+  display: flex;
+  overflow-x: auto;
+  gap: 1rem;
+  padding-bottom: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: #ccc transparent;
+}
+
+.strip-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+.strip-scroll::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+
+.strip-card {
+  flex: 0 0 auto;
+  min-width: 220px;
+  background-color: var(--card-bg, #f9f9f9);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: background 0.3s ease;
+}
+
+.strip-card:hover {
+  background-color: var(--card-hover, #f1f5f9);
+}
+
+.strip-feature {
+  font-weight: 600;
+  font-size: 1.05rem;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary, #111);
+}
+
+.strip-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+}
+
+.label {
+  color: #777;
+}
+
+.value {
+  font-weight: 600;
+}
+
+.expected {
+  color: #3182ce;
+}
+.got.good {
+  color: #2f855a;
+}
+.got.warn {
+  color: #d69e2e;
+}
+.got.bad {
+  color: #e53e3e;
+}
+
+html.dark .reality-check-bar {
+  --card-bg: #1f2937;
+  --card-hover: #2d3748;
+  --text-primary: #f8fafc;
+}
+
+
+.scroll-snap {
+  scroll-snap-type: x mandatory;
+}
+.strip-card {
+  scroll-snap-align: start;
+} */

@@ -1,0 +1,457 @@
+.fancy-review-form {
+    padding: 2rem 1rem;
+    max-width: 600px;
+    margin: auto;
+    overflow: visible;
+    /* remove scroll */
+    max-height: none;
+    /* allow natural height */
+}
+
+.rating-step h2 {
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    animation: fadeIn 0.5s ease;
+}
+
+.stars-and-emojis {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.7rem;
+    margin: 0.4rem 0rem 1rem;
+    animation: pulseIn 0.3s ease;
+}
+
+.star-wrapper {
+    text-align: center;
+    cursor: pointer;
+    font-size: 0rem;
+    transition: transform 0.2s ease;
+    opacity: 0.6;
+    position: relative;
+}
+
+.star-wrapper.selected,
+.star-wrapper:hover {
+    transform: scale(1.15);
+    opacity: 1;
+}
+
+.star-wrapper .emoji {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 0.2rem;
+}
+
+.star-wrapper .star {
+    font-size: 1.4rem;
+    color: #bbb;
+    transition: color 0.3s ease;
+}
+
+.star-wrapper.selected .star {
+    color: #ffc107;
+}
+
+@keyframes pulseIn {
+    from {
+        transform: scale(0.95);
+        opacity: 0.8;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+
+.comment-step h2 {
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.prompts {
+    margin-bottom: 1rem;
+}
+
+.prompts p {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin: 0.2rem 0;
+    font-style: italic;
+}
+
+textarea {
+    width: 100%;
+    font-size: 1rem;
+    margin-top: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    resize: vertical;
+    transition: border-color 0.2s ease;
+}
+
+textarea:focus {
+    border-color: var(--primary);
+    outline: none;
+}
+
+.reviewcomment-textarea{
+    background-color: var(--shadow);
+    padding: 1rem;
+    color: var(--text-primary);
+}
+
+.comment-tools {
+    display: flex;
+    justify-content: space-between;
+    margin: 0.5rem 0;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.word-count.warn {
+    color: red;
+}
+
+.word-count.ok {
+    color: #28a745;
+}
+
+.sentiment {
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+}
+
+.sentiment.positive {
+    background: #d4edda;
+    color: #155724;
+}
+
+.sentiment.negative {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.sentiment.neutral {
+    background: #e2e3e5;
+    color: #383d41;
+}
+
+.tag-selection {
+    margin-bottom: 2.2rem;
+}
+
+.tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.tag {
+    padding: 0.4rem 0.8rem;
+    background-color: var(--suits-reversed);
+    color: var(--text-primary);
+    border: 0.3px dashed #212121;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tag:hover {
+    background-color: #e0e0e0;
+    color: #212121;
+    transform: scale(1.03);
+}
+
+.tag.selected {
+    background-color: var(--primary);
+    color: var(--suits-reversed);
+    font-weight: 600;
+}
+
+#form-next {
+    border-radius: 11px;
+    padding: 4px 8px;
+    color: var(--suits-reversed);
+    background-color: var(--suits);
+}
+
+button:disabled {
+    opacity: 0.32;
+    cursor: not-allowed;
+}
+
+
+.photo-step h2 {
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.photo-tip {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.photo-step label {
+    display: block;
+}
+
+.photo-drop {
+    background: #f4f4f4;
+    padding: 1rem;
+    width: 13rem;
+    border: 2px dashed #bbb;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+
+.photo-drop:hover {
+    border-color: var(--primary);
+    background: var(--light);
+    color: var(--text-primary);
+}
+
+.photo-preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 0.2rem;
+    margin: 0.5rem 0 1rem;
+}
+
+.photo-card {
+    background: white;
+    border: 1px solid #ccc;
+    padding: 0.5rem;
+    border-radius: 8px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.photo-card img {
+    width: 100%;
+    border-radius: 6px;
+    object-fit: cover;
+    min-height: 100px;
+    max-height: 100px;
+    transition: all ease-in-out 0.1s;
+}
+
+.photo-card img:hover {
+    max-height: 170px;
+}
+
+.photo-card input[type="text"] {
+    width: 100%;
+    padding: 0.3rem;
+    font-size: 0.8rem;
+    margin-top: 0.4rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.photo-card input:focus {
+    outline-color: var(--primary);
+}
+
+.error-message {
+    color: #e74c3c;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+
+.tag-prompt {
+    display: block;
+    font-size: 0.75rem;
+    color: #777;
+    margin-top: 0.3rem;
+    font-style: italic;
+}
+
+.meta-step h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.meta-section {
+    margin-bottom: 1.5rem;
+}
+
+.meta-section h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.6rem;
+    color: var(--text-primary);
+}
+
+.meta-section .multipleselect {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+}
+
+
+.option-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.option-btn {
+    border: 2px solid #ccc;
+    background: var(--suits-reversed);
+    color: var(--text-primary);
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.option-btn .emoji {
+    font-size: 1.4rem;
+}
+
+.option-btn:hover {
+    border-color: var(--primary);
+    background: var(--light);
+    color: var(--suits);
+}
+
+.option-btn.selected {
+    background: var(--primary);
+    color: var(--suits-reversed);
+    border-color: var(--primary);
+}
+
+.category-rating h3{
+    color: var(--text-primary);
+}
+
+.confirmation-step h2 {
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.summary-card {
+    background: var(--reviewform-bg);
+    padding: 1rem;
+    border-top: 2px solid var(--text-secondary);
+    border-radius: 1.3rem;
+    box-shadow: 0 7px 11px var(--footer-shadow);
+}
+
+.summary-item {
+    margin-bottom: 1rem;
+    animation: fadeIn 0.6s ease forwards;
+    opacity: 0;
+    color: var(--text-primary);
+}
+
+#summaryreview-star{
+    font-size: 0.85rem;
+}
+
+.summary-item:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.summary-item:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.summary-item:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.summary-item:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+.summary-item button {
+    margin-top: 0.4rem;
+    font-size: 0.8rem;
+    background: none;
+    border: none;
+    color: var(--primary);
+    cursor: pointer;
+}
+
+.badge {
+    background: #e0f7fa;
+    color: #00796b;
+    padding: 0.2rem 0.4rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    margin-left: 0.5rem;
+}
+
+.submit-button {
+    margin-top: 1rem;
+    padding: 0.8rem 1.6rem;
+    font-size: 1rem;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.submit-button:hover {
+    background-color: #218838;
+}
+
+.thanks-step {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--text-primary);
+}
+
+.thanks-step h2 {
+    font-weight: 600;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+}
+
+.thanks-step button {
+    background-color: var(--suits);
+    border-radius: 0.7rem;
+    margin-top: 1rem;
+    color: var(--suits-reversed);
+    padding: 0.2rem 0.5rem;
+}
+
+.remove-image {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 2px 6px;
+    color: #333;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
