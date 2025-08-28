@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { apiUrl } from '../api';
 
 const StudentReviews = ({ reviews, isMyReviewsPage = false }) => {
     const [disabledButtons, setDisabledButtons] = useState(new Set());
@@ -22,7 +23,7 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false }) => {
         const clickedSet = new Set(disabledButtons);
         const wasHelpful = clickedSet.has(reviewId);
 
-        fetch('http://localhost:5000/review/helpful', {
+        fetch(`${apiUrl}/review/helpful`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ review_id: reviewId, undo: wasHelpful }),
