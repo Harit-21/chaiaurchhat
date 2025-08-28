@@ -98,8 +98,8 @@ const ReviewSummaryPanel = ({ summary, breakdown, livedHereStats, tags, reviewLi
 
                 <div className="additional-summary">
                     <h4></h4>
-                    <p><span title={topRentOpinion}><strong>💰Rent:</strong> <span id='happied-icon'>{mapRentOpinionToSymbol(topRentOpinion)}</span></span></p>
-                    <p><span title={topHappinessLevel}><strong>😁Are Residents Happy:</strong> <span id='happied-icon'> {mapHappinessLevelToEmoji(topHappinessLevel)}</span></span></p>
+                    <p><span className='emo-indicators'><strong>💰Rent:</strong> <span rentindicate={topRentOpinion} id='rent-indicate'>{mapRentOpinionToSymbol(topRentOpinion)}</span></span></p>
+                    <p><span className='emo-indicators'><strong>😁Are Residents Happy:</strong> <span id='hp-indicate' hpindicate={topHappinessLevel}> {mapHappinessLevelToEmoji(topHappinessLevel)}</span></span></p>
                 </div>
 
 
