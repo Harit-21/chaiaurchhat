@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import '../css/MyReviews.css';
 import FancyReviewForm from '../components/FancyReviewForm';
 import ReviewModal from '../components/ReviewModal';
-import { apiUrl } from '../api';
+import { apiUrl } from '../api.js';
 
 
 const MyReviews = () => {
@@ -294,3 +294,4 @@ const MyReviews = () => {
 };
 
 export default MyReviews;
+
