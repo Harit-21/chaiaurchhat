@@ -1,0 +1,148 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Barriecito&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barriecito&family=Freckle+Face&display=swap');
+
+
+:root {
+  /* Primary color: a confident but approachable red-orange */
+  --primary: #ff4d4d;
+  /* Slightly softer and fresher red */
+  --primary-light: #ff4d4d;
+  --reviewcard: #ff77771d;
+  --light: #ff7f7f2d;
+  --hamlight: #ff989886;
+
+  /* Accent: vibrant orange for CTAs and highlights */
+  --accent: #fb8500;
+  /* warmer, more energetic orange */
+
+  /* Grays for text and UI elements */
+  --gray-500: #6b7280;
+  /* neutral medium gray */
+  --gray-400: #9ca3af;
+  /* lighter gray for subtle text */
+  --gray-800: #1f2937;
+  /* dark slate for dark text */
+  --gray-900: #111827;
+  /* very dark for backgrounds or borders */
+  /* Yellow used for warnings or highlights */
+  --yellow-500: #fbbf24;
+  --bg: linear-gradient(to bottom right, #fffde7, #ffffff, #fffbdc);
+
+  --hover: #b71c1c;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+
+  --form-bg: #fffaf2;
+
+  --header-bg: #ffffff37;
+
+  --homepg-cardshadow: 0 5px 20px rgba(0, 0, 0, 0.47);
+
+  --verified-iconinfo: 3px 3px 5px rgba(0, 0, 0, 0.35),
+    0.2px 0.2px 12px rgba(0, 0, 0, 0.1);
+
+  --footer-bg: #212121;
+  --footer-shadow: rgba(0, 0, 0, 0.33);
+
+  /* HOME PAGE */
+  --search-tog: #e5e7eb;
+
+  /* College Page*/
+  --pg-card: rgba(0, 0, 0, 0.08);
+
+
+  /* PG Page */
+  --similar-pg: #212121;
+  --reviewform-bg: white;
+
+
+  /* Text colors */
+  --suits: #000;
+  --suits-reversed: #fff;
+  --text-primary: #212121;
+  /* dark gray, easier on eyes than pure black */
+  --text-secondary: #4b5563;
+  /* medium gray for secondary text */
+}
+
+.dark {
+  /* For dark mode: primary shifts to a bright cyan for freshness */
+  --primary: #22d3ee;
+  /* bright cyan, calming and trustworthy */
+  --light: #6aebff2c;
+  --hamlight: #63eaff9e;
+
+  --reviewcard: rgba(255, 255, 255, 0.134);
+  /* Accent shifts to a softer yellow-orange */
+  --accent: #fbbf24;
+  /* warm yellow for emphasis */
+
+  /* Background gradient: deep dark blues/grays */
+  --bg-gradient-from: #1f2937;
+  /* gray-800 */
+  --bg-gradient-via: #111827;
+  /* gray-900 */
+  --bg-gradient-to: #1e40af;
+  /* indigo-800 for some color depth */
+
+  --bg: linear-gradient(to bottom right, var(--bg-gradient-from), var(--bg-gradient-via), var(--bg-gradient-to));
+
+  --hover: #00abc5;
+  --shadow: 0 8px 24px rgba(255, 255, 255, 0.42);
+
+  /* --header-bg: #d5d5d59f; */
+  --header-bg: #171e299f;
+
+  --homepg-cardshadow: 0px 8px 20px rgba(255, 255, 255, 0.5);
+
+  --verified-iconinfo: 3px 3px 5px rgba(255, 255, 255, 0.35),
+    0.2px 0.2px 12px rgba(255, 255, 255, 0.1);
+
+  --footer-bg: linear-gradient(135deg, #0f172a, #1e293b);
+  --footer-shadow: rgba(255, 255, 255, 0.3);
+  
+  /* HOME PAGE */
+  --search-tog: #4242424e;
+
+  /* College Page*/
+  --pg-card: rgba(255, 255, 255, 0.1);
+
+  /* PG Page */
+  --similar-pg: #efefef35;
+  --reviewform-bg: #2a2a2a4e;
+
+  /* Text colors: light for dark mode */
+  --suits: #fff;
+  --suits-reversed: #000;
+  --form-bg: #212121ca;
+  --text-primary: #efefef;
+  /* light gray */
+  --text-secondary: #b6b6b6;
+  /* medium light gray */
+}
+
+
+body {
+  font-family: "Freckle Face", system-ui;
+  background-color: #fff;
+  font-style: normal;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+::selection {
+  background-color: var(--primary);
+  /* Highlight background */
+  color: white;
+  /* Highlighted text color */
+}
