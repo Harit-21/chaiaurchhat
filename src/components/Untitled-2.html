@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hostel Hub - Detailed Reviews</title>
+<style>
+  /* Reset and basic styles */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f9fafb;
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  a {
+    text-decoration: none;
+    color: #0056b3;
+  }
+  a:hover {
+    color: #004494;
+  }
+
+  /* Header */
+  header {
+    background: #007bff;
+    color: white;
+    padding: 20px 30px;
+    font-weight: bold;
+    font-size: 1.8rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  header nav a {
+    margin-left: 20px;
+    font-weight: 600;
+  }
+
+  /* Main container */
+  main {
+    max-width: 900px;
+    margin: 30px auto 50px;
+    padding: 0 20px;
+    flex: 1;
+  }
+
+  h1, h2 {
+    margin-bottom: 15px;
+    color: #222;
+  }
+
+  /* Review cards container */
+  #reviews {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-bottom: 40px;
+  }
+
+  /* Single review card */
+  .review-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+    padding: 20px 25px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    transition: box-shadow 0.3s ease;
+  }
+  .review-card:hover {
+    box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+  }
+
+  /* Avatar circle */
+  .avatar {
+    width: 50px;
+    height: 50px;
+    background: #007bff;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+    border-radius: 50%;
+    user-select: none;
+  }
+
+  /* Review content */
+  .review-content {
+    flex-grow: 1;
+  }
+  .review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .hostel-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+  .review-date {
+    font-size: 0.85rem;
+    color: #777;
+  }
+
+  /* Star rating */
+  .stars {
+    color: #ffc107;
+    font-size: 1.25rem;
+    margin-bottom: 10px;
+  }
+
+  /* Review text */
+  .review-text {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #444;
+  }
+
+  /* Submission form */
+  .review-form {
+    background: white;
+    padding: 25px 30px;
+    border-radius: 14px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.07);
+    max-width: 700px;
+    margin: auto;
+  }
+  .review-form h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #222;
+    text-align: center;
+  }
+  .form-group {
+    margin-bottom: 18px;
+  }
+  label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #444;
+  }
+  input[type="text"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1.5px solid #ccc;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.25s;
+    resize: vertical;
+  }
+  input[type="text"]:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: #007bff;
+  }
+  button[type="submit"] {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 14px 25px;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 100%;
+    font-weight: 700;
+    margin-top: 10px;
+  }
+  button[type="submit"]:hover {
+    background: #0056b3;
+  }
+
+  /* Sorting area */
+  .sort-container {
+    text-align: right;
+    margin-bottom: 20px;
+  }
+  .sort-container select {
+    padding: 6px 12px;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 1.4px solid #ccc;
+    cursor: pointer;
+  }
+
+  /* Responsive queries */
+  @media (max-width: 600px) {
+    .review-card {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .review-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    header {
+      flex-direction: column;
+      text-align: center;
+      gap: 10px;
+    }
+    header nav a {
+      margin-left: 0;
+      font-size: 1rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>Hostel Hub</div>
+  <nav>
+    <a href="#reviews">Reviews</a>
+    <a href="#submit">Submit Review</a>
+  </nav>
+</header>
+
+<main>
+
+  <h1>Hostel Reviews</h1>
+
+  <div class="sort-container">
+    Sort by: 
+    <select id="sortSelect" aria-label="Sort reviews">
+      <option value="date_desc" selected>Newest First</option>
+      <option value="date_asc">Oldest First</option>
+      <option value="rating_desc">Highest Rating</option>
+      <option value="rating_asc">Lowest Rating</option>
+    </select>
+  </div>
+
+  <section id="reviews" aria-live="polite" aria-atomic="false" aria-relevant="additions">
+    <!-- Reviews get rendered here -->
+  </section>
+
+  <section id="submit" class="review-form" aria-label="Submit a new review">
+    <h2>Submit Your Review</h2>
+    <form id="reviewForm" novalidate>
+      <div class="form-group">
+        <label for="hostelInput">Hostel Name</label>
+        <input type="text" id="hostelInput" name="hostelInput" placeholder="Enter hostel name" required />
+      </div>
+      <div class="form-group">
+        <label for="ratingInput">Rating</label>
+        <select id="ratingInput" name="ratingInput" required>
+          <option value="" disabled selected>Select rating</option>
+          <option value="5">★★★★★ Excellent</option>
+          <option value="4">★★★★☆ Very Good</option>
+          <option value="3">★★★☆☆ Average</option>
+          <option value="2">★★☆☆☆ Poor</option>
+          <option value="1">★☆☆☆☆ Terrible</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="reviewInput">Review</label>
+        <textarea id="reviewInput" name="reviewInput" rows="5" placeholder="Write your detailed feedback here..." required></textarea>
+      </div>
+      <button type="submit">Post Review</button>
+    </form>
+  </section>
+
+</main>
+
+<script>
+(() => {
+  // Initial sample reviews
+  const sampleReviews = [
+    {
+      hostel: 'Sunset Backpackers',
+      rating: 5,
+      text: 'Absolutely amazing! Clean rooms, helpful staff, and great common area to meet travelers.',
+      timestamp: new Date('2025-07-28T10:15:00'),
+      userName: 'Alice'
+    },
+    {
+      hostel: 'City Central Hostel',
+      rating: 4,
+      text: 'Convenient location and comfy beds. Shared bathrooms were kept clean most of the time.',
+      timestamp: new Date('2025-07-30T18:40:00'),
+      userName: 'Bob'
+    },
+    {
+      hostel: 'Riverside Dorms',
+      rating: 3,
+      text: 'Good value for money but a bit noisy at night. Nice breakfast included.',
+      timestamp: new Date('2025-07-29T13:25:00'),
+      userName: 'Charlie'
+    }
+  ];
+
+  let reviews = [...sampleReviews];
+
+  // Utilities
+  function formatDate(date) {
+    return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+  function getInitials(name) {
+    return name.split(' ').map(n => n[0].toUpperCase()).join('').slice(0,2);
+  }
+  function starRatingHTML(rating) {
+    const fullStars = '★'.repeat(rating);
+    const emptyStars = '☆'.repeat(5 - rating);
+    return fullStars + emptyStars;
+  }
+
+  // Render reviews based on current order
+  function renderReviews(sortBy = 'date_desc') {
+    // Sort first
+    let sorted = [...reviews];
+    switch(sortBy) {
+      case 'date_asc':
+        sorted.sort((a,b) => a.timestamp - b.timestamp);
+        break;
+      case 'date_desc':
+        sorted.sort((a,b) => b.timestamp - a.timestamp);
+        break;
+      case 'rating_asc':
+        sorted.sort((a,b) => a.rating - b.rating);
+        break;
+      case 'rating_desc':
+        sorted.sort((a,b) => b.rating - a.rating);
+        break;
+    }
+
+    const container = document.getElementById('reviews');
+    container.innerHTML = '';
+
+    if(sorted.length === 0) {
+      container.innerHTML = `<p style="text-align:center; font-style:italic; color:#666;">No reviews yet. Be the first to add one!</p>`;
+      return;
+    }
+
+    for (const review of sorted) {
+      const card = document.createElement('article');
+      card.setAttribute('tabindex', '0');
+      card.className = 'review-card';
+      card.innerHTML = `
+        <div class="avatar" aria-hidden="true">${getInitials(review.userName || review.hostel)}</div>
+        <div class="review-content">
+          <div class="review-header">
+            <div class="hostel-name">${review.hostel}</div>
+            <time class="review-date" datetime="${review.timestamp.toISOString()}">${formatDate(review.timestamp)}</time>
+          </div>
+          <div class="stars" aria-label="Rating: ${review.rating} out of 5 stars">${starRatingHTML(review.rating)}</div>
+          <p class="review-text">${escapeHTML(review.text)}</p>
+          <p style="font-size:0.85rem; font-style:italic; color:#555;">— ${review.userName || 'Anonymous'}</p>
+        </div>
+      `;
+      container.appendChild(card);
+    }
+  }
+
+  // Basic HTML escaping for review text
+  function escapeHTML(str) {
+    return str.replace(/[&<>"']/g, function(m) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+    });
+  }
+
+  // Add new review from form values
+  function addReview(hostel, rating, text) {
+    reviews.push({
+      hostel,
+      rating: Number(rating),
+      text,
+      timestamp: new Date(),
+      userName: 'Guest' // Could add username input later
+    });
+  }
+
+  // Form handling
+  const form = document.getElementById('reviewForm');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const hostelInput = form.hostelInput.value.trim();
+    const ratingInput = form.ratingInput.value;
+    const reviewInput = form.reviewInput.value.trim();
+
+    if (!hostelInput || !ratingInput || !reviewInput) {
+      alert('Please fill in all fields!');
+      return;
+    }
+
+    addReview(hostelInput, ratingInput, reviewInput);
+    renderReviews(sortSelect.value);
+    form.reset();
+
+    // Optional: Scroll to newly added review
+    document.getElementById('reviews').lastElementChild.focus();
+  });
+
+  // Sort select handling
+  const sortSelect = document.getElementById('sortSelect');
+  sortSelect.addEventListener('change', () => {
+    renderReviews(sortSelect.value);
+  });
+
+  // Initial render
+  renderReviews();
+
+})();
+</script>
+
+</body>
+</html>
