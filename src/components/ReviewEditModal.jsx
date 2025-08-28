@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { apiUrl } from '../api';
+import { apiUrl } from '../api.js';
 
 const ReviewEditModal = ({ review, pgMetadata, onClose, onSave }) => {
     const hasFood = !!pgMetadata?.has_food;
@@ -153,3 +153,4 @@ const ReviewEditModal = ({ review, pgMetadata, onClose, onSave }) => {
 };
 
 export default ReviewEditModal;
+
