@@ -10,7 +10,7 @@ import React, { useState, useEffect } from 'react';
 import LoginModal from '../components/LoginModal';
 import '../css/Signin.css';
 import { useAuth } from '../pages/AuthContext';
-import { apiUrl } from '../api';
+import { apiUrl } from '../api.js';
 
 const PGDetailPage = () => {
     const { pgName, collegeName } = useParams();
@@ -252,3 +252,4 @@ const PGDetailPage = () => {
 };
 
 export default PGDetailPage;
+
