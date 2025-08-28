@@ -10,6 +10,7 @@ import React, { useState, useEffect } from 'react';
 import LoginModal from '../components/LoginModal';
 import '../css/Signin.css';
 import { useAuth } from '../pages/AuthContext';
+import { apiUrl } from '../api';
 
 const PGDetailPage = () => {
     const { pgName, collegeName } = useParams();
@@ -34,11 +35,11 @@ const PGDetailPage = () => {
 
     useEffect(() => {
         setLoading(true);
-        fetch("http://localhost:5000/pgs")
+        fetch(`${apiUrl}/pgs`)
             .then(res => res.json())
             .then(data => {
                 setPgData(data);
-                return fetch(`http://localhost:5000/pg?name=${encodeURIComponent(pgName)}&college=${encodeURIComponent(collegeName)}`)
+                return fetch(`${apiUrl}/pg?name=${encodeURIComponent(pgName)}&college=${encodeURIComponent(collegeName)}`)
 
             })
             .then(res => res.json())
@@ -54,7 +55,7 @@ const PGDetailPage = () => {
 
     useEffect(() => {
         if (!pg || !pg.name) return;
-        fetch(`http://localhost:5000/recommend?pg=${encodeURIComponent(pg.name)}`)
+        fetch(`${apiUrl}/recommend?pg=${encodeURIComponent(pg.name)}`)
             .then(res => res.json())
             .then(data => {
                 console.log("Recommended PGs:", data);
