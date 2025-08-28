@@ -1,0 +1,62 @@
+.multi-review-form {
+    padding: 1.5rem;
+    max-width: 550px;
+    margin: auto;
+}
+
+.rating-stars {
+    display: flex;
+    margin-bottom: 1rem;
+}
+
+.star {
+    font-size: 2rem;
+    color: #ccc;
+    margin-right: 5px;
+    cursor: pointer;
+    transition: color 0.2s, transform 0.2s;
+}
+
+.star.filled {
+    color: #ffbf00;
+    transform: scale(1.1);
+}
+
+textarea {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    resize: vertical;
+    margin-top: 0.5rem;
+}
+
+.preview-images {
+    display: flex;
+    gap: 8px;
+    margin-top: 0.5rem;
+}
+
+.preview-images img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+button {
+    background: #0077ff;
+    color: white;
+    border: none;
+    padding: 0.7rem 1.4rem;
+    border-radius: 6px;
+    margin-top: 1rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+button:hover {
+    background: #005ecb;
+}
