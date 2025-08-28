@@ -6,6 +6,7 @@ import Card from '../components/Card';
 import MiniCard from '../components/MiniCard';
 import '../css/Home.css';
 import CollegeModal from '../components/CollegeModal';
+import { apiUrl } from '../api';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ const Home = () => {
 
   // Fetch homepage data once on mount
   useEffect(() => {
-    fetch('http://localhost:5000/colleges?select=*')
+    fetch(`${apiUrl}/colleges?select=*`)
       .then(res => res.json())
       .then(data => {
         setAllColleges(data);
@@ -44,7 +45,7 @@ const Home = () => {
         setHomepageColleges([]);
       });
 
-    fetch('http://localhost:5000/trending-pgs')
+    fetch(`${apiUrl}/trending-pgs`)
       .then(res => res.json())
       .then(data => setHomepagePGs(data))
       .catch(e => {
@@ -96,7 +97,7 @@ const Home = () => {
       setLoadingSearch(true);
       navigate(`/?q=${encodeURIComponent(sanitizedQuery)}`, { replace: true });
 
-      fetch(`http://localhost:5000/search?q=${encodeURIComponent(sanitizedQuery)}`, {
+      fetch(`${apiUrl}/search?q=${encodeURIComponent(sanitizedQuery)}`, {
         signal: controller.signal,
       })
         .then(res => res.json())
