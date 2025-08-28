@@ -5,3 +5,9 @@ flask-cors==6.0.1
 python-dotenv==1.1.1
 supabase==2.16.0
 requests==2.32.4
+pandas==2.3.0
+huggingface-hub==0.34.1
+torch==2.7.1
+nltk==3.9.1
+scikit-learn==1.7.1
+transformers==4.54.0
