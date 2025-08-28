@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import '../css/MyReviews.css';
 import FancyReviewForm from '../components/FancyReviewForm';
 import ReviewModal from '../components/ReviewModal';
+import { apiUrl } from '../api';
 
 
 const MyReviews = () => {
@@ -33,7 +34,7 @@ const MyReviews = () => {
         const confirmed = window.confirm("Are you sure you want to delete this review?");
         if (!confirmed) return;
 
-        fetch(`http://localhost:5000/reviews/${id}`, {
+        fetch(`${apiUrl}/reviews/${id}`, {
             method: 'DELETE'
         })
             .then(res => {
@@ -48,7 +49,7 @@ const MyReviews = () => {
 
     const fetchWishlist = () => {
         if (!user) return;
-        fetch(`http://localhost:5000/wishlist?email=${encodeURIComponent(user.email)}`)
+        fetch(`${apiUrl}/wishlist?email=${encodeURIComponent(user.email)}`)
             .then(res => res.json())
             .then(data => {
                 if (Array.isArray(data)) {
@@ -61,7 +62,7 @@ const MyReviews = () => {
     useEffect(() => {
         if (!user) return;
 
-        fetch(`http://localhost:5000/user-reviews?email=${encodeURIComponent(user.email)}`)
+        fetch(`${apiUrl}/user-reviews?email=${encodeURIComponent(user.email)}`)
             .then(res => res.json())
             .then(data => {
                 const reviewsArray = Array.isArray(data)
