@@ -2,9 +2,11 @@ import requests
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import os
+from dotenv import load_dotenv
 
-SUPABASE_URL = "https://wvllrkcljaowidusfiod.supabase.co"
-SUPABASE_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2bGxya2NsamFvd2lkdXNmaW9kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQwMzA1NDksImV4cCI6MjA2OTYwNjU0OX0.RBu1LYhlX8-Q3MmwW9tCyD-J8K7usGcz51_YMC6hroA"
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_API_KEY = os.getenv("SUPABASE_API_KEY")
 
 HEADERS = {
     "apikey": SUPABASE_API_KEY,
