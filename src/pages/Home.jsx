@@ -6,7 +6,7 @@ import Card from '../components/Card';
 import MiniCard from '../components/MiniCard';
 import '../css/Home.css';
 import CollegeModal from '../components/CollegeModal';
-import { apiUrl } from '../api';
+import { apiUrl } from '../api.js';
 
 const Home = () => {
   const navigate = useNavigate();
