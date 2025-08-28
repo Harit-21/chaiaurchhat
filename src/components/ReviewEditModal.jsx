@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { apiUrl } from '../api';
 
 const ReviewEditModal = ({ review, pgMetadata, onClose, onSave }) => {
     const hasFood = !!pgMetadata?.has_food;
@@ -43,7 +44,7 @@ const ReviewEditModal = ({ review, pgMetadata, onClose, onSave }) => {
             room_type: updatedRoomType
         };
 
-        fetch(`http://localhost:5000/reviews/${review.id}`, {
+        fetch(`${apiUrl}/reviews/${review.id}`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json'
