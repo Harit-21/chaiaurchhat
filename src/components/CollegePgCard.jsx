@@ -3,7 +3,7 @@ import '../css/CollegePgCard.css';
 import { Link, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { apiUrl } from '../api';
+import { apiUrl } from '../api.js';
 
 
 const CollegePgCard = ({ id, name, gender_type, rating, reviews, image, user, onLoginRequired }) => {
@@ -105,3 +105,4 @@ const CollegePgCard = ({ id, name, gender_type, rating, reviews, image, user, on
 };
 
 export default CollegePgCard;
+
