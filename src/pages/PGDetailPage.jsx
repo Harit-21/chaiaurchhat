@@ -10,7 +10,8 @@ import React, { useState, useEffect } from 'react';
 import LoginModal from '../components/LoginModal';
 import '../css/Signin.css';
 import { useAuth } from '../pages/AuthContext';
-import { apiUrl } from '../api.js';
+import { apiUrl } from '../api';
+import { Helmet } from 'react-helmet-async';
 
 const PGDetailPage = () => {
     const { pgName, collegeName } = useParams();
@@ -138,6 +139,10 @@ const PGDetailPage = () => {
 
     return (
         <div className="pg-detail-wrapper">
+            <Helmet>
+                <title>{pg.name} - {pg.location} | {siteName}</title>
+                <meta name="description" content="Find honest PG & hostel reviews by students. Explore trending PGs near institutions with real ratings and feedback." />
+            </Helmet>
             <Header onReviewClick={() => {
                 if (user) {
                     setShowModal(true);
@@ -252,4 +257,3 @@ const PGDetailPage = () => {
 };
 
 export default PGDetailPage;
-

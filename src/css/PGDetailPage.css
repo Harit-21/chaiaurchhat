@@ -54,6 +54,16 @@
   transform: scale(1.07);
 }
 
+.see-photos {
+  transition: all ease-in-out 0.2s;
+}
+
+.see-photos:hover {
+  background-color: rgb(81, 81, 81);
+  padding: 2px 7px;
+  border-radius: 1rem;
+}
+
 .pg-header h1 {
   font-size: clamp(1.7rem, 3.7vw, 2.8rem);
   font-weight: 500;
@@ -68,7 +78,7 @@
 .pg-main-layout {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 4.7rem;
+  gap: clamp(2.5rem, 5vw, 4.7rem);
   max-width: 1450px;
   margin: 3rem auto;
   padding: 0 1.1rem;
@@ -88,7 +98,7 @@
 
 .open-review-button {
   background-color: var(--primary);
-  padding: 5px 0;
+  padding: 7px 0;
   border-radius: 0.7rem;
   font-size: clamp(1rem, 1.3vw, 1.3rem);
   color: white;
@@ -275,7 +285,9 @@ h4 {
 }
 
 .additional-summary #hp-indicate:hover::after,
-.additional-summary #rent-indicate:hover::after, .additional-summary .emo-indicators:hover #hp-indicate::after, .additional-summary .emo-indicators:hover #rent-indicate::after {
+.additional-summary #rent-indicate:hover::after,
+.additional-summary .emo-indicators:hover #hp-indicate::after,
+.additional-summary .emo-indicators:hover #rent-indicate::after {
   position: absolute;
   background-color: #333;
   color: #fff;
@@ -287,13 +299,15 @@ h4 {
   opacity: 0.8;
 }
 
-.additional-summary #rent-indicate:hover::after, .additional-summary .emo-indicators:hover #rent-indicate::after{
+.additional-summary #rent-indicate:hover::after,
+.additional-summary .emo-indicators:hover #rent-indicate::after {
   top: 2px;
   left: 30px;
   content: attr(rentindicate);
 }
 
-.additional-summary #hp-indicate:hover::after, .additional-summary .emo-indicators:hover #hp-indicate::after {
+.additional-summary #hp-indicate:hover::after,
+.additional-summary .emo-indicators:hover #hp-indicate::after {
   top: 2px;
   left: 22px;
   content: attr(hpindicate);
@@ -557,7 +571,7 @@ h4 {
   background-color: var(--primary);
 }
 
-/* Write Review */
+/* 
 .pg-write-review textarea,
 .pg-write-review input,
 .pg-write-review select {
@@ -580,7 +594,7 @@ h4 {
 
 .pg-write-review button:hover {
   background: #00457b;
-}
+} */
 
 
 /* Similar PGs */
@@ -649,12 +663,12 @@ h4 {
 @media screen and (max-width: 900px) {
   .pg-main-layout {
     display: block;
-
+    margin: 2rem auto;
   }
 
   .pg-right {
     position: static;
-    margin-top: 2rem;
+    margin-top: 6.5rem;
   }
 
   .review-header {
@@ -665,7 +679,7 @@ h4 {
 
 @media screen and (max-width: 650px) {
   .pg-header .overlay {
-    padding: 0.7rem;
+    padding: 0.72rem 0.85rem;
   }
 
   .botright {
@@ -675,16 +689,25 @@ h4 {
 }
 
 @media screen and (max-width: 465px) {
+  .pg-header .overlay {
+    padding: 0.71rem;
+  }
+
   .pg-main-layout {
     padding: 0 0.63rem;
+    margin: 0.9rem auto;
   }
 
   .pg-header h1 {
-    font-size: clamp(1.4rem, 6.6vw, 1.7rem);
+    font-size: clamp(1.3rem, 6.6vw, 1.7rem);
   }
 
   .pg-header p {
     font-size: clamp(0.8rem, 4.7vw, 1.1rem);
+  }
+
+  .botright p{
+    font-size: clamp(0.7rem, 4vw, 1.3rem); 
   }
 
   .see-photos {

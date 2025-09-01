@@ -141,7 +141,7 @@ const CollegePage = () => {
         <div className="college-page-wrapper">
             <Helmet>
                 <title>{college.short_name} | {siteName}</title>
-                <meta name="description" content="Find honest PG & hostel reviews by students. Explore trending PGs and colleges with real ratings and feedback." />
+                <meta name="description" content="Find honest PG & hostel reviews by students. Explore trending PGs near institutions with real ratings and feedback." />
             </Helmet>
             <Header />
 

@@ -127,7 +127,7 @@ const Home = () => {
 
       <Helmet>
         <title>Home | {siteName}</title>
-        <meta name="description" content="Find honest PG & hostel reviews by students. Explore trending PGs and colleges with real ratings and feedback." />
+        <meta name="description" content="Find honest PG & hostel reviews by students. Explore trending PGs near institutions with real ratings and feedback." />
       </Helmet>
 
       <Header />
