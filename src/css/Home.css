@@ -20,7 +20,7 @@ html {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.6rem 1.5rem;
+  padding: 0.6rem 1.1rem;
   background-color: var(--header-bg);
   backdrop-filter: blur(7px);
   position: sticky;
@@ -48,13 +48,65 @@ html {
     0 0 5px var(--primary);
 }
 
+.caclogohead {
+  position: relative;
+  display: flex;
+  align-items: start;
+  gap: 1px;
+}
+
+.caclogohead img {
+  height: clamp(2.01rem, 6vw, 2.81rem);
+}
+
 .header h1:hover {
   transform: scale(1.04);
 }
 
+.caclogohead::before {
+  content: "";
+  position: absolute;
+  bottom: 12px;
+  left: -10px;
+  width: clamp(5.2rem, 7vw, 7.81rem);
+  height: 100%;
+  background: url('../assets/smoke.gif') center/cover no-repeat;
+  opacity: 1;
+  pointer-events: none;
+  mix-blend-mode: luminosity;
+  z-index: 1;
+  filter: blur(1px);
+}
+
+.caclogohead::after {
+  content: "";
+  position: absolute;
+  bottom: 7px;
+  left: -15px;
+  width: 30%;
+  height: 100%;
+  background: url('../assets/chaisteams.gif') center/cover no-repeat;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  mix-blend-mode: darken;
+  z-index: 2;
+  filter: blur(1.2px);
+}
+
+.dark .caclogohead::after {
+  mix-blend-mode: lighten;
+}
+
+.caclogohead:hover::after {
+  opacity: 1;
+}
+
+
+/* 
 .header h1 span {
   color: #ff5722;
-}
+} */
 
 .header button {
   background-color: var(--primary);
@@ -108,7 +160,7 @@ button.hamburger.open {
 }
 
 /* Responsive behavior */
-@media (max-width: 590px) {
+@media (max-width: 608px) {
   .header {
     padding: 0.6rem 1rem;
   }
@@ -500,6 +552,64 @@ button.hamburger.open {
   color: #ebeff3;
 }
 
+.caclogofoot {
+  display: flex;
+  justify-content: center;
+}
+
+.footer-brand-link {
+  position: relative;
+  gap: 5px;
+  display: flex;
+}
+
+
+.footer-brand-link::before {
+  content: "";
+  position: absolute;
+  bottom: 30px;
+  right: -39px;
+  width: clamp(5.2rem, 7vw, 7.81rem);
+  height: 100%;
+  background: url('../assets/smoke.gif') center/cover no-repeat;
+  opacity: 1;
+  pointer-events: none;
+  mix-blend-mode: luminosity;
+  z-index: 2;
+  filter: blur(1px);
+}
+
+.footer-brand-link::after {
+  content: "";
+  position: absolute;
+  bottom: 95%;
+  right: -11.5%;
+  width: 30%;
+  height: 101%;
+  background: url('../assets/chaisteams.gif') center/cover no-repeat;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  mix-blend-mode: lighten;
+  z-index: 1;
+  filter: blur(1.3px);
+}
+
+.dark .footer-brand-link::after{
+  mix-blend-mode: luminosity;
+}
+
+.footer-brand-link:hover::after {
+  opacity: 1;
+}
+
+.caclogofoot img {
+  height: clamp(2.9rem, 5vw, 4.5rem);
+  backdrop-filter: blur(5px);
+  filter: drop-shadow(0 0 5px var(--suits-reversed));
+  transform: translateY(-13px);
+}
+
 .footer-links h4,
 .footer-contact h4 {
   font-size: 1.4rem;
@@ -508,7 +618,7 @@ button.hamburger.open {
   color: var(--primary);
 }
 
-.footer-contact p{
+.footer-contact p {
   color: #cbd5e1;
 }
 
@@ -520,12 +630,13 @@ button.hamburger.open {
 .footer-links a {
   color: #e2e7ed;
   text-decoration: none;
-  transition: 0.3s;
+  transition: all ease-in-out .23s;
+  display: inline-block;
 }
 
 .footer-links a:hover {
-  color: var(--primary);
-  transform: translateX(5px);
+  color: var(--hover);
+  transform: translateX(7px);
 }
 
 .social-icons {
@@ -635,7 +746,7 @@ button.hamburger.open {
   padding: 4px;
   /* width: fit-content; */
   margin: 1.2rem auto;
-  box-shadow: inset 0 1px 4px rgba(0,0,0,0.08);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.08);
   gap: 4px;
   max-width: 300px;
 }
@@ -654,7 +765,7 @@ button.hamburger.open {
   transition: color 0.31s ease, transform 0.17s ease;
 }
 
-.segmented-toggle .segment:hover{
+.segmented-toggle .segment:hover {
   transform: scale(1.13);
 }
 
@@ -677,14 +788,22 @@ button.hamburger.open {
 .segmented-toggle .slider.college {
   transform: translateX(0%);
 }
+
 .segmented-toggle .slider.both {
   transform: translateX(100%);
 }
+
 .segmented-toggle .slider.pg {
   transform: translateX(200%);
 }
-.segmented-toggle .segment.college { color: #2563eb; }
-.segmented-toggle .segment.pg { color: #db2777; }
+
+.segmented-toggle .segment.college {
+  color: #2563eb;
+}
+
+.segmented-toggle .segment.pg {
+  color: #db2777;
+}
 
 .autocomplete-dropdown {
   width: 100%;
@@ -700,7 +819,8 @@ button.hamburger.open {
   transition: all 0.2s ease;
 }
 
-.autocomplete-item, .ai-nr {
+.autocomplete-item,
+.ai-nr {
   padding: 0.75rem 1rem;
   cursor: pointer;
   display: flex;
@@ -710,8 +830,8 @@ button.hamburger.open {
   transition: all 0.2s ease;
 }
 
-.ai-nr{
-cursor: default;
+.ai-nr {
+  cursor: default;
 }
 
 .autocomplete-item:hover {
@@ -719,7 +839,8 @@ cursor: default;
   border-radius: 10px;
 }
 
-.autocomplete-item:hover .autocomplete-title, .autocomplete-item:hover .autocomplete-subtext{
+.autocomplete-item:hover .autocomplete-title,
+.autocomplete-item:hover .autocomplete-subtext {
   transform: scale(1.06);
   color: var(--suits);
 }
@@ -750,4 +871,3 @@ cursor: default;
 .autocomplete-dropdown .autocomplete-item:first-of-type {
   border-top: none;
 }
-

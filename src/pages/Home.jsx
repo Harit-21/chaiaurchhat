@@ -6,7 +6,8 @@ import Card from '../components/Card';
 import MiniCard from '../components/MiniCard';
 import '../css/Home.css';
 import CollegeModal from '../components/CollegeModal';
-import { apiUrl } from '../api.js';
+import { apiUrl } from '../api';
+import { Helmet } from 'react-helmet-async';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -123,6 +124,11 @@ const Home = () => {
 
   return (
     <div className="page-wrapper">
+
+      <Helmet>
+        <title>Home | {siteName}</title>
+        <meta name="description" content="Find honest PG & hostel reviews by students. Explore trending PGs and colleges with real ratings and feedback." />
+      </Helmet>
 
       <Header />
 

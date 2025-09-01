@@ -9,7 +9,8 @@ import AddHostelModal from '../components/AddHostelModal';
 import LoginModal from '../components/LoginModal';
 import { useAuth } from './AuthContext';
 import { useSearchParams } from 'react-router-dom';
-import { apiUrl } from '../api.js';
+import { apiUrl } from '../api';
+import { Helmet } from 'react-helmet-async';
 
 const CollegePage = () => {
     const { collegeName } = useParams();
@@ -138,6 +139,10 @@ const CollegePage = () => {
 
     return (
         <div className="college-page-wrapper">
+            <Helmet>
+                <title>{college.short_name} | {siteName}</title>
+                <meta name="description" content="Find honest PG & hostel reviews by students. Explore trending PGs and colleges with real ratings and feedback." />
+            </Helmet>
             <Header />
 
             {/* === Hero Section === */}
@@ -234,4 +239,3 @@ const CollegePage = () => {
 };
 
 export default CollegePage;
-

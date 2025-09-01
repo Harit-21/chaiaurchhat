@@ -6,7 +6,9 @@ import { useAuth } from "../pages/AuthContext";
 import { useLocation } from 'react-router-dom';
 import { useRef } from 'react';
 import LoginModal from './LoginModal';
-
+import { useDarkMode } from './DarkModeContext';
+import cacLogoW from '../assets/cacw.png';
+import cacLogoB from '../assets/cacb.png';
 
 const Header = ({ onReviewClick }) => {
     const { user, logout } = useAuth();
@@ -20,27 +22,8 @@ const Header = ({ onReviewClick }) => {
     };
 
     const siteName = import.meta.env.VITE_CAC_SITE_NAME;
-
-    const [darkMode, setDarkMode] = useState(() => {
-        const stored = localStorage.getItem('darkMode');
-        // Fall back to system preference if no user preference is stored
-        if (stored !== null) {
-            return stored === 'true';
-        }
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        return prefersDark;
-    });
-
-    useEffect(() => {
-        const root = document.documentElement;
-        if (darkMode) {
-            root.classList.add('dark');
-        } else {
-            root.classList.remove('dark');
-        }
-        localStorage.setItem('darkMode', darkMode);
-    }, [darkMode]);
-
+    const { darkMode, setDarkMode } = useDarkMode();
+    const toggleDarkMode = () => setDarkMode(prev => !prev);
 
     const handleEmailLogin = (email) => {
         console.log("Send one-time link to:", email);
@@ -65,7 +48,9 @@ const Header = ({ onReviewClick }) => {
             {/* <h1 onClick={() => navigate('/', { replace: true })}> */}
             <h1>
                 <Link to="/">
-                    {siteName} <span>🛏️</span>
+                    <span className='caclogohead'>
+                        <img src={darkMode ? cacLogoW : cacLogoB} alt="Logo" /> {siteName}
+                    </span>
                 </Link>
             </h1>
             <div className="nav-buttons">
@@ -143,7 +128,7 @@ const Header = ({ onReviewClick }) => {
                             ✍️ Write a Review
                         </button>
                     )}
-                    <div className="toggle-wrapper" onClick={() => setDarkMode(!darkMode)} title="Toggle Dark Mode">
+                    <div className="toggle-wrapper" onClick={toggleDarkMode} title="Toggle Dark Mode">
                         <div className={`toggle-track ${darkMode ? 'dark' : 'light'}`}>
                             <div className="toggle-thumb">{darkMode ? '🌙' : '🌞'}</div>
                         </div>
@@ -186,10 +171,7 @@ const Header = ({ onReviewClick }) => {
                                 🙋🏻‍♂️ Login / Signup
                             </button>
                             <button
-                                onClick={() => {
-                                    setDarkMode(!darkMode);
-                                }}
-                                className="dropdown-item"
+                                onClick={toggleDarkMode} className="dropdown-item"
                             >
                                 {darkMode ? '🌞 Bright Mode' : '🌙 Dark Mode'}
                             </button>
@@ -240,10 +222,7 @@ const Header = ({ onReviewClick }) => {
                                 🚪 Logout
                             </button>
                             <button
-                                onClick={() => {
-                                    setDarkMode(!darkMode);
-                                }}
-                                className="dropdown-item"
+                                onClick={toggleDarkMode} className="dropdown-item"
                             >
                                 {darkMode ? '🌞 Bright Mode' : '🌙 Dark Mode'}
                             </button>

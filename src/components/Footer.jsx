@@ -1,16 +1,23 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useDarkMode } from './DarkModeContext';
+import cacLogoW from '../assets/cacw.png';
+// import cacLogoB from '../assets/cacb.png';
+import cacLogoB from '../assets/cacfb.png';
 
 const siteName = import.meta.env.VITE_CAC_SITE_NAME;
 
 const Footer = () => {
+    const { darkMode } = useDarkMode();
     return (
         <footer className="site-footer">
             <div className="footer-content">
                 <div className="footer-brand">
-                    <h2><Link to="/" className="footer-brand-link">
-                        {siteName} 🛏️
-                    </Link></h2>
+                    <span className='caclogofoot'>
+                        <h2><Link to="/" className="footer-brand-link">
+                            {siteName} <img src={darkMode ? cacLogoW : cacLogoB} alt="Logo" />
+                        </Link></h2>
+                    </span>
                     <p>Your trusted guide to honest PG & Hostel reviews from real students.</p>
                 </div>
 
