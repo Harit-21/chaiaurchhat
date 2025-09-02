@@ -1,0 +1,110 @@
+.fullpage-loader {
+  position: fixed;
+  inset: 0;
+  background: var(--cup-bg);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  font-family: 'Segoe UI', sans-serif;
+  color: #333;
+}
+
+.loader-logo-container {
+  width: 140px;
+  height: 140px;
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+/* Animate SVG logo parts */
+.loader-logo-svg .logo-roof {
+  animation: slideDown 1.2s ease-out forwards;
+  opacity: 0;
+}
+
+.loader-logo-svg .logo-cup {
+  animation: bounceUp 1.4s ease-out forwards;
+  /* animation-delay: 0.3s; */
+  animation-fill-mode: forwards;
+}
+
+.loader-logo-svg .steam-path {
+  animation: steamRise 2s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.loader-logo-svg .delay1 {
+  animation-delay: 0.4s;
+}
+
+.loader-logo-svg .delay2 {
+  animation-delay: 0.8s;
+}
+
+/* Logo entrance animations */
+@keyframes slideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes bounceUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  60% {
+    opacity: 0.7;
+    transform: translateY(-5px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Steam animation */
+@keyframes steamRise {
+  0% {
+    opacity: 0.6;
+    transform: translateY(0) scaleX(1);
+  }
+  50% {
+    transform: translateY(-15px) scaleX(1.1);
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-30px) scaleX(1.2);
+  }
+}
+
+/* Loader Text */
+.loader-text {
+  font-size: 1rem;
+  color: var(--text-primary);
+  animation: fadeInUp 1s ease 1s forwards;
+  opacity: 0;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.logo-cup {
+  filter: drop-shadow(0 0 10px rgba(255, 190, 100, 0.4));
+}

@@ -8,6 +8,8 @@ import '../css/Home.css';
 import CollegeModal from '../components/CollegeModal';
 import { apiUrl } from '../api';
 import { Helmet } from 'react-helmet-async';
+import SkeletonCard from '../components/cardloader/SkeletonCard';
+import SkeletonMiniCard from '../components/cardloader/SkeletonMiniCard';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -239,14 +241,17 @@ const Home = () => {
         <h3 className="section-heading">🎓 Popular Colleges</h3>
         <section className='trendycol'>
           <div className="popular-colleges">
-            {homepageColleges.map((college, idx) => (
-              <MiniCard
-                key={college.id || idx}
-                name={college.name}
-                city={college.city}
-                image={`https://api.dicebear.com/7.x/thumbs/svg?seed=${encodeURIComponent(college.name.replace(/\s/g, '') + Math.random().toString(36).substring(2, 6))}`}
-              />
-            ))}
+            {homepageColleges.length > 0
+              ? homepageColleges.map((college, idx) => (
+                <MiniCard
+                  key={college.id || idx}
+                  name={college.name}
+                  city={college.city}
+                  image={`https://api.dicebear.com/7.x/thumbs/svg?seed=${encodeURIComponent(college.name.replace(/\s/g, '') + Math.random().toString(36).substring(2, 6))}`}
+                />
+              ))
+              : Array.from({ length: 6 }).map((_, i) => <SkeletonMiniCard key={i} />)
+            }
           </div>
         </section>
       </main>
@@ -255,19 +260,22 @@ const Home = () => {
       <section className="trendy">
         <h3 className="section-heading">🏠 Trending PGs This Week</h3>
         <div className="trending-pgs">
-          {homepagePGs.map((pg, idx) => (
-            <div key={pg.id || idx}>
-              <Card
-                key={pg.id || idx}
-                name={pg.name}
-                location={pg.location || pg.college_city}
-                rating={pg.avg_rating}
-                reviews={pg.review_count}
-                image={pg.image}
-                college={pg.college_name}
-              />
-            </div>
-          ))}
+          {homepagePGs.length > 0
+            ? homepagePGs.map((pg, idx) => (
+              <div key={pg.id || idx}>
+                <Card
+                  key={pg.id || idx}
+                  name={pg.name}
+                  location={pg.location || pg.college_city}
+                  rating={pg.avg_rating}
+                  reviews={pg.review_count}
+                  image={pg.image}
+                  college={pg.college_name}
+                />
+              </div>
+            ))
+            : Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
+          }
         </div>
       </section>
 

@@ -11,11 +11,15 @@ import LoginModal from '../components/LoginModal';
 import '../css/Signin.css';
 import { useAuth } from '../pages/AuthContext';
 import { apiUrl } from '../api';
+import FullPageLoader from '../components/FullPageLoader';
+import SkeletonCard from '../components/cardloader/SkeletonCard';
+import DataCache from '../cache/DataCache';
 import { Helmet } from 'react-helmet-async';
 
 const PGDetailPage = () => {
     const { pgName, collegeName } = useParams();
     const [similarPGs, setSimilarPGs] = useState([]);
+    const [similarPGsLoading, setSimilarPGsLoading] = useState(true);
     const [pgData, setPgData] = useState([]);
     const [pg, setPg] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -23,6 +27,9 @@ const PGDetailPage = () => {
     const [pgMetadata, setPgMetadata] = useState({ gender_type: '', has_food: true });
     const { user } = useAuth();
     const [showLoginModal, setShowLoginModal] = useState(false);
+
+    const [initialLoad, setInitialLoad] = useState(true);
+
     const siteName = import.meta.env.VITE_CAC_SITE_NAME;
 
 
@@ -35,40 +42,123 @@ const PGDetailPage = () => {
     }, [pg]);
 
     useEffect(() => {
-        setLoading(true);
-        fetch(`${apiUrl}/pgs`)
-            .then(res => res.json())
-            .then(data => {
-                setPgData(data);
-                return fetch(`${apiUrl}/pg?name=${encodeURIComponent(pgName)}&college=${encodeURIComponent(collegeName)}`)
+        const pgListKey = `all-pgs`;
+        const pgDetailKey = `pg-${collegeName}-${pgName}`;
 
-            })
-            .then(res => res.json())
-            .then(data => {
-                setPg(data);
-                setLoading(false);
-            })
-            .catch(err => {
-                console.error("Failed to fetch PG details:", err);
-                setLoading(false);
-            });
-    }, [pgName]);
+        setLoading(true);
+
+        // Use DataCache.get with backgroundRefresh and fetcher for pg list
+        const cachedPgList = DataCache.get(pgListKey, {
+            backgroundRefresh: true,
+            fetcher: () =>
+                fetch(`${apiUrl}/pgs`).then(res => res.json())
+                    .then(data => {
+                        setPgData(data);
+                        return data;
+                    })
+                    .catch(() => null)
+        });
+
+        // Use DataCache.get with backgroundRefresh and fetcher for pg details
+        const cachedPgDetail = DataCache.get(pgDetailKey, {
+            backgroundRefresh: true,
+            fetcher: () =>
+                fetch(`${apiUrl}/pg?name=${encodeURIComponent(pgName)}&college=${encodeURIComponent(collegeName)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        setPg(data);
+                        return data;
+                    })
+                    .catch(() => null)
+        });
+
+        if (cachedPgList && cachedPgDetail) {
+            setPgData(cachedPgList);
+            setPg(cachedPgDetail);
+            setLoading(false);
+            setTimeout(() => setInitialLoad(false), 100);
+        } else {
+            // fallback if cache empty, fetch data normally
+            fetch(`${apiUrl}/pgs`)
+                .then(res => res.json())
+                .then(data => {
+                    setPgData(data);
+                    DataCache.set(pgListKey, data);
+                    return fetch(`${apiUrl}/pg?name=${encodeURIComponent(pgName)}&college=${encodeURIComponent(collegeName)}`);
+                })
+                .then(res => res.json())
+                .then(data => {
+                    setPg(data);
+                    DataCache.set(pgDetailKey, data);
+                })
+                .catch(err => {
+                    console.error("Failed to fetch PG details:", err);
+                })
+                .finally(() => {
+                    setLoading(false);
+                    setTimeout(() => setInitialLoad(false), 100);
+                });
+        }
+    }, [pgName, collegeName]);
+
+    // useEffect(() => {
+    //     if (!pg || !pg.name) return;
+    //     setSimilarPGsLoading(true);
+    //     fetch(`${apiUrl}/recommend?pg=${encodeURIComponent(pg.name)}`)
+    //         .then(res => res.json())
+    //         .then(data => {
+    //             setSimilarPGs(Array.isArray(data) ? data : []);
+    //         })
+    //         .catch(err => {
+    //             console.error("Failed to fetch recommendations:", err);
+    //             setSimilarPGs([]);
+    //         })
+    //         .finally(() => {
+    //             setSimilarPGsLoading(false);
+    //         });
+    // }, [pg]);
 
     useEffect(() => {
         if (!pg || !pg.name) return;
-        fetch(`${apiUrl}/recommend?pg=${encodeURIComponent(pg.name)}`)
-            .then(res => res.json())
-            .then(data => {
-                console.log("Recommended PGs:", data);
-                setSimilarPGs(Array.isArray(data) ? data : []);
-            })
-            .catch(err => {
-                console.error("Failed to fetch recommendations:", err);
-                setSimilarPGs([]); // Set to empty array on error
-            });
+
+        const recommendKey = `recommend-${pg.name}`;
+        setSimilarPGsLoading(true);
+
+        const cachedRecommendations = DataCache.get(recommendKey, {
+            backgroundRefresh: true,
+            fetcher: () =>
+                fetch(`${apiUrl}/recommend?pg=${encodeURIComponent(pg.name)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        const safeData = Array.isArray(data) ? data : [];
+                        setSimilarPGs(safeData);
+                        return safeData;
+                    })
+                    .catch(() => [])
+        });
+
+        if (cachedRecommendations) {
+            setSimilarPGs(cachedRecommendations);
+            setSimilarPGsLoading(false);
+        } else {
+            // fallback: fetch normally
+            fetch(`${apiUrl}/recommend?pg=${encodeURIComponent(pg.name)}`)
+                .then(res => res.json())
+                .then(data => {
+                    const safeData = Array.isArray(data) ? data : [];
+                    setSimilarPGs(safeData);
+                    DataCache.set(recommendKey, safeData);
+                })
+                .catch(err => {
+                    console.error("Failed to fetch recommendations:", err);
+                    setSimilarPGs([]);
+                })
+                .finally(() => setSimilarPGsLoading(false));
+        }
     }, [pg]);
 
-    if (loading) return <div>Loading PG details...</div>;
+
+    if (initialLoad) return <FullPageLoader />;
     if (!pg || pg.error) return <div>PG not found.</div>;
 
     const rentOpinionStats = {};
@@ -198,7 +288,9 @@ const PGDetailPage = () => {
                     <section className="pg-similar">
                         <h2>🎴If you liked this one,<br></br> you'll like those too.</h2>
                         <div className="similar-list">
-                            {similarPGs.length === 0 ? (
+                            {similarPGsLoading ? (
+                                Array.from({ length: 2 }).map((_, i) => <SkeletonCard key={i} />)
+                            ) : similarPGs.length === 0 ? (
                                 <p>Uh-oh, your choice is unique, yaara. Right now, no suggestions for you.</p>
                             ) : (
                                 similarPGs.map((pg, idx) => (

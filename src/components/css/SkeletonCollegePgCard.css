@@ -1,0 +1,87 @@
+/* Card Container */
+.skeleton-cpc .skeleton-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.2rem;
+  background-color: rgba(255, 255, 255, 0.07);
+  border-radius: 1rem;
+  margin-bottom: 1rem;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* Thumbnail / Image Placeholder */
+.skeleton-cpc .skeleton-thumbnail {
+  width: 100px;
+  height: 100px;
+  background-color: #e0e0e0;
+  border-radius: 0.75rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Details Section */
+.skeleton-cpc .skeleton-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* Text Lines */
+.skeleton-cpc .skeleton-line {
+  height: 14px;
+  background-color: #d1d1d1;
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-cpc .skeleton-line.xshort {
+  width: 30%;
+}
+
+.skeleton-cpc .skeleton-line.short {
+  width: 50%;
+}
+
+.skeleton-cpc .skeleton-line.long {
+  width: 80%;
+}
+
+/* Meta Info (rating, reviews etc.) */
+.skeleton-cpc .skeleton-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-top: 0.3rem;
+}
+
+.skeleton-cpc .skeleton-circle {
+  width: 12px;
+  height: 12px;
+  background-color: #c6c6c6;
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Shimmer Effect */
+.skeleton-cpc .shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent 25%, rgba(255, 255, 255, 0.4) 50%, transparent 75%);
+  animation: shimmer-animation 1.5s infinite ease-in-out;
+}
+
+@keyframes shimmer-animation {
+  100% {
+    left: 100%;
+  }
+}

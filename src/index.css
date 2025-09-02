@@ -8,6 +8,19 @@
 
 
 :root {
+  /* LOADIN PAGE */
+  --cup-bg: radial-gradient(circle at center, #f9f6f2, #f1ece6);
+  --cup-top: #444;
+  --cup-bottom: #000;
+  --roof-top: #555;
+  --roof-bottom: #111;
+  --steam: #aaa;
+  --cup-shadow: #999;
+  --cup-hand: #111;
+  --chimney: #222;
+
+
+
   /* Primary color: a confident but approachable red-orange */
   --primary: #ff4d4d;
   /* Slightly softer and fresher red */
@@ -31,7 +44,7 @@
   /* very dark for backgrounds or borders */
   /* Yellow used for warnings or highlights */
   --yellow-500: #fbbf24;
-  --bg: linear-gradient(to bottom right, #fffde7, #ffffff, #fffbdc);
+  --bg: linear-gradient(to bottom right, #fffcde, #ffffff, #fffbdc);
 
   --hover: #b71c1c;
   --shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
@@ -50,6 +63,7 @@
 
   /* HOME PAGE */
   --search-tog: #e5e7eb;
+  --loadshim: linear-gradient(135deg, #f0f0f0 8%, #ddd 18%, #f0f0f0 33%);
 
   /* College Page*/
   --pg-card: rgba(0, 0, 0, 0.08);
@@ -104,9 +118,10 @@
 
   --footer-bg: linear-gradient(135deg, #0f172a, #1e293b);
   --footer-shadow: rgba(255, 255, 255, 0.3);
-  
+
   /* HOME PAGE */
   --search-tog: #4242424e;
+  --loadshim: linear-gradient(135deg, rgba(255, 255, 255, 0.19) 8%, #c7c7c7 18%, rgba(255, 255, 255, 0.19) 33%);
 
   /* College Page*/
   --pg-card: rgba(255, 255, 255, 0.1);
@@ -123,9 +138,26 @@
   /* light gray */
   --text-secondary: #b6b6b6;
   /* medium light gray */
+
+
+
+  /* LOADIN PAGE */
+  --cup-bg: radial-gradient(circle at center, #0e0e0e, #00254a);
+  --cup-top: #bebebe;
+  --cup-bottom: #e1e1e1;
+  --roof-top: #8e8e8e;
+  --roof-bottom: #dcdcdc;
+  --steam: #ffffff;
+  --cup-shadow: #777777b4;
+  --cup-hand: #d1d1d1;
+  --chimney: #f0f0f0;
 }
 
-h1, h2, h3, .hero-title, .site-logo {
+h1,
+h2,
+h3,
+.hero-title,
+.site-logo {
   font-family: "Galindo", sans-serif;
   /* letter-spacing: 2px; */
 }

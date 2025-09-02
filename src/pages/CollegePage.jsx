@@ -11,6 +11,9 @@ import { useAuth } from './AuthContext';
 import { useSearchParams } from 'react-router-dom';
 import { apiUrl } from '../api';
 import { Helmet } from 'react-helmet-async';
+import FullPageLoader from '../components/FullPageLoader';
+import DataCache from '../cache/DataCache';
+import SkeletonCollegePgCard from '../components/cardloader/SkeletonCollegePgCard';
 
 const CollegePage = () => {
     const { collegeName } = useParams();
@@ -24,6 +27,8 @@ const CollegePage = () => {
     const [sortOption, setSortOption] = useState(searchParams.get("sort") || "");
     const [genderType, setGenderType] = useState(searchParams.get("gender") || "");
     const [hasFood, setHasFood] = useState(searchParams.get("food") || "");
+
+    const [initialLoad, setInitialLoad] = useState(true);
 
     const [college, setCollege] = useState(null);
     const [showAddModal, setShowAddModal] = useState(false);
@@ -57,50 +62,88 @@ const CollegePage = () => {
     };
 
     useEffect(() => {
-        const fetchCollege = async () => {
-            try {
-                const response = await fetch(`${apiUrl}/college/${encodeURIComponent(collegeName)}`);
-                const data = await response.json();
-                console.log("College data:", data);
-                setCollege(data);
-            } catch (error) {
-                console.error("Error fetching college info:", error);
-            }
-        };
+        const collegeCacheKey = `college-${collegeName}`;
+        const cachedCollege = DataCache.get(collegeCacheKey, {
+            backgroundRefresh: true,
+            fetcher: () =>
+                fetch(`${apiUrl}/college/${encodeURIComponent(collegeName)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        setCollege(data);
+                        return data;
+                    })
+                    .catch(err => {
+                        console.error("Error fetching college:", err);
+                        return null;
+                    })
+        });
 
-        fetchCollege();
+        if (cachedCollege) {
+            setCollege(cachedCollege);
+        } else {
+            // fallback in case cache and background fail
+            fetch(`${apiUrl}/college/${encodeURIComponent(collegeName)}`)
+                .then(res => res.json())
+                .then(data => {
+                    setCollege(data);
+                    DataCache.set(collegeCacheKey, data);
+                })
+                .catch(err => {
+                    console.error("Failed to fetch college:", err);
+                });
+        }
     }, [collegeName]);
+
 
 
     // === API call to your Flask backend ===
     useEffect(() => {
-        if (!college?.id) return; // Wait until college is loaded
+        if (!college?.id) return;
 
-        const fetchPGs = async () => {
-            try {
-                const response = await fetch(`${apiUrl}/pgs?college_id=${encodeURIComponent(college.id)}`);
-                const data = await response.json();
-                console.log("🚀 PGs for this college:", data);
+        const pgListKey = `pgs-for-${collegeName}`;
+        const cachedPgList = DataCache.get(pgListKey, {
+            backgroundRefresh: true,
+            fetcher: () =>
+                fetch(`${apiUrl}/pgs?college_id=${encodeURIComponent(college.id)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        const pgArray = Array.isArray(data) ? data : [];
+                        setPgList(pgArray);
+                        return pgArray;
+                    })
+        });
 
-                // Ensure it's always an array to avoid .filter errors
-                setPgList(Array.isArray(data) ? data : []);
-            } catch (error) {
-                console.error("❌ Error fetching PGs:", error);
-                setPgList([]);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchPGs();
+        if (cachedPgList) {
+            setPgList(cachedPgList);
+            setLoading(false);
+            setTimeout(() => setInitialLoad(false), 100);
+        } else {
+            // fallback in case fetcher fails completely
+            setLoading(true);
+            fetch(`${apiUrl}/pgs?college_id=${encodeURIComponent(college.id)}`)
+                .then(res => res.json())
+                .then(data => {
+                    const pgArray = Array.isArray(data) ? data : [];
+                    setPgList(pgArray);
+                    DataCache.set(pgListKey, pgArray);
+                })
+                .catch(error => {
+                    console.error("❌ Error fetching PGs:", error);
+                    setPgList([]);
+                })
+                .finally(() => {
+                    setLoading(false);
+                    setTimeout(() => setInitialLoad(false), 100);
+                });
+        }
     }, [college]);
 
 
     // === Filtering & Sorting ===
     const filteredPGs = pgList
         .filter(pg =>
-            pg.name?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-            pg.gender_type?.toLowerCase().includes(debouncedSearch.toLowerCase())
+            pg.name?.toLowerCase().includes(debouncedSearch.toLowerCase())
+            // || pg.gender_type?.toLowerCase().includes(debouncedSearch.toLowerCase())
         )
         .filter(pg => (pg.avg_rating || 0) >= minRating)
         .filter(pg => genderType === "" || pg.gender_type === genderType)
@@ -134,7 +177,7 @@ const CollegePage = () => {
     const totalPGs = filteredPGs.length;
     const backgroundImage = college?.image?.trim() || "https://images.unsplash.com/20/cambridge.JPG";
 
-    if (loading) return <div style={{ padding: "2rem" }}>Loading PGs for {collegeName}...</div>;
+    if (initialLoad) return <FullPageLoader />;
 
 
     return (
@@ -176,27 +219,30 @@ const CollegePage = () => {
                         setGenderType={setGenderType}
                         hasFood={hasFood}
                         setHasFood={setHasFood}
+                        disabled={loading}
                     />
 
                     <div className="pg-list">
-                        {filteredPGs.length > 0 ? (
-                            filteredPGs.map((pg, idx) => (
-                                <CollegePgCard
-                                    key={pg.id || idx}
-                                    id={pg.id}
-                                    name={pg.name}
-                                    gender_type={pg.gender_type || null}
-                                    rating={pg.avg_rating || 0}
-                                    reviews={pg.review_count || 0}
-                                    image={pg.image}
-                                    user={user}
-                                    onLoginRequired={() => setShowLoginModal(true)} // trigger modal
-                                />
+                        {loading
+                            ? Array.from({ length: 4 }).map((_, idx) => (
+                                <SkeletonCollegePgCard key={idx} />
                             ))
-                        ) : (
-                            // <p>No PGs match your search/filter. Try adjusting your criteria.</p>
-                            <p>No PGs. Try adjusting your criteria or <span id='addpg' onClick={handleAddHostelClick}>Add One</span>.</p>
-                        )}
+                            : filteredPGs.length > 0
+                                ? filteredPGs.map((pg, idx) => (
+                                    <CollegePgCard
+                                        key={pg.id || idx}
+                                        id={pg.id}
+                                        name={pg.name}
+                                        gender_type={pg.gender_type || null}
+                                        rating={pg.avg_rating || 0}
+                                        reviews={pg.review_count || 0}
+                                        image={pg.image}
+                                        user={user}
+                                        onLoginRequired={() => setShowLoginModal(true)}
+                                    />
+                                ))
+                                : <p>No PGs. Try adjusting your criteria or <span id='addpg' onClick={handleAddHostelClick}>Add One</span>.</p>
+                        }
                     </div>
                 </section>
 

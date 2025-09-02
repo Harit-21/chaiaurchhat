@@ -1,0 +1,57 @@
+.skeleton-minicard {
+  background-color: var(--pg-card);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  width: 190px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  backdrop-filter: blur(3.7px);
+}
+
+.skeleton-avatar {
+  width: 80px;
+  height: 80px;
+  background-color: #ddd;
+  border-radius: 50%;
+  margin-bottom: 1rem;
+  border: 2px solid var(--primary);
+}
+
+.skeleton-line {
+  height: 10px;
+  background-color: #ddd;
+  border-radius: 4px;
+  margin: 0.3rem 0;
+}
+
+.skeleton-line.short {
+  width: 60%;
+}
+
+.skeleton-line.long {
+  width: 80%;
+}
+
+.shimmer {
+  animation: shimmer 1.7s infinite linear;
+  background: var(--loadshim);
+  background-size: 1000px 100%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@media (max-width: 424px) {
+    .skeleton-minicard{
+        margin: auto;
+        width: 75dvw;
+    }
+}
