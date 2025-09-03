@@ -101,61 +101,61 @@ const PGDetailPage = () => {
         }
     }, [pgName, collegeName]);
 
-    // useEffect(() => {
-    //     if (!pg || !pg.name) return;
-    //     setSimilarPGsLoading(true);
-    //     fetch(`${apiUrl}/recommend?pg=${encodeURIComponent(pg.name)}`)
-    //         .then(res => res.json())
-    //         .then(data => {
-    //             setSimilarPGs(Array.isArray(data) ? data : []);
-    //         })
-    //         .catch(err => {
-    //             console.error("Failed to fetch recommendations:", err);
-    //             setSimilarPGs([]);
-    //         })
-    //         .finally(() => {
-    //             setSimilarPGsLoading(false);
-    //         });
-    // }, [pg]);
-
     useEffect(() => {
         if (!pg || !pg.name) return;
-
-        const recommendKey = `recommend-${pg.name}`;
         setSimilarPGsLoading(true);
-
-        const cachedRecommendations = DataCache.get(recommendKey, {
-            backgroundRefresh: true,
-            fetcher: () =>
-                fetch(`${apiUrl}/recommend?pg=${encodeURIComponent(pg.name)}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        const safeData = Array.isArray(data) ? data : [];
-                        setSimilarPGs(safeData);
-                        return safeData;
-                    })
-                    .catch(() => [])
-        });
-
-        if (cachedRecommendations) {
-            setSimilarPGs(cachedRecommendations);
-            setSimilarPGsLoading(false);
-        } else {
-            // fallback: fetch normally
-            fetch(`${apiUrl}/recommend?pg=${encodeURIComponent(pg.name)}`)
-                .then(res => res.json())
-                .then(data => {
-                    const safeData = Array.isArray(data) ? data : [];
-                    setSimilarPGs(safeData);
-                    DataCache.set(recommendKey, safeData);
-                })
-                .catch(err => {
-                    console.error("Failed to fetch recommendations:", err);
-                    setSimilarPGs([]);
-                })
-                .finally(() => setSimilarPGsLoading(false));
-        }
+        fetch(`${apiUrl}/recommend?pg=${encodeURIComponent(pg.name)}`)
+            .then(res => res.json())
+            .then(data => {
+                setSimilarPGs(Array.isArray(data) ? data : []);
+            })
+            .catch(err => {
+                console.error("Failed to fetch recommendations:", err);
+                setSimilarPGs([]);
+            })
+            .finally(() => {
+                setSimilarPGsLoading(false);
+            });
     }, [pg]);
+
+    // useEffect(() => {
+    //     if (!pg || !pg.name) return;
+
+    //     const recommendKey = `recommend-${pg.name}`;
+    //     setSimilarPGsLoading(true);
+
+    //     const cachedRecommendations = DataCache.get(recommendKey, {
+    //         backgroundRefresh: true,
+    //         fetcher: () =>
+    //             fetch(`${apiUrl}/recommend?pg=${encodeURIComponent(pg.name)}`)
+    //                 .then(res => res.json())
+    //                 .then(data => {
+    //                     const safeData = Array.isArray(data) ? data : [];
+    //                     setSimilarPGs(safeData);
+    //                     return safeData;
+    //                 })
+    //                 .catch(() => [])
+    //     });
+
+    //     if (cachedRecommendations) {
+    //         setSimilarPGs(cachedRecommendations);
+    //         setSimilarPGsLoading(false);
+    //     } else {
+    //         // fallback: fetch normally
+    //         fetch(`${apiUrl}/recommend?pg=${encodeURIComponent(pg.name)}`)
+    //             .then(res => res.json())
+    //             .then(data => {
+    //                 const safeData = Array.isArray(data) ? data : [];
+    //                 setSimilarPGs(safeData);
+    //                 DataCache.set(recommendKey, safeData);
+    //             })
+    //             .catch(err => {
+    //                 console.error("Failed to fetch recommendations:", err);
+    //                 setSimilarPGs([]);
+    //             })
+    //             .finally(() => setSimilarPGsLoading(false));
+    //     }
+    // }, [pg]);
 
 
     if (initialLoad) return <FullPageLoader />;

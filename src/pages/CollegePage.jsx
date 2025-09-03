@@ -27,6 +27,7 @@ const CollegePage = () => {
     const [sortOption, setSortOption] = useState(searchParams.get("sort") || "");
     const [genderType, setGenderType] = useState(searchParams.get("gender") || "");
     const [hasFood, setHasFood] = useState(searchParams.get("food") || "");
+    const [wishlist, setWishlist] = useState([]);
 
     const [initialLoad, setInitialLoad] = useState(true);
 
@@ -172,6 +173,22 @@ const CollegePage = () => {
         setSearchParams(params, { replace: true });
     }, [debouncedSearch, minRating, sortOption, genderType, hasFood]);
 
+    // Fetch wishlist on load
+    useEffect(() => {
+        if (!user) return;
+
+        fetch(`${apiUrl}/wishlist?email=${user.email}`)
+            .then(res => res.json())
+            .then(data => {
+                const wishlistPGIds = data.map(item => item.pg_id);
+                setWishlist(wishlistPGIds);
+            })
+            .catch(err => {
+                console.error("Failed to fetch wishlist", err);
+                setWishlist([]); // fallback to empty array
+            });
+    }, [user]);
+
 
     const totalReviews = filteredPGs.reduce((sum, pg) => sum + (pg.review_count || 0), 0);
     const totalPGs = filteredPGs.length;
@@ -223,7 +240,7 @@ const CollegePage = () => {
                     />
 
                     <div className="pg-list">
-                        {loading
+                        {(loading || wishlist === null)
                             ? Array.from({ length: 4 }).map((_, idx) => (
                                 <SkeletonCollegePgCard key={idx} />
                             ))
@@ -238,6 +255,7 @@ const CollegePage = () => {
                                         reviews={pg.review_count || 0}
                                         image={pg.image}
                                         user={user}
+                                        isWishlisted={wishlist.includes(pg.id)}
                                         onLoginRequired={() => setShowLoginModal(true)}
                                     />
                                 ))

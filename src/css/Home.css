@@ -405,20 +405,25 @@ button.hamburger.open {
 
 /* === Trending PGs Scroll Section === */
 .trendy {
-  max-width: 93%;
+  max-width: 95%;
   margin: auto;
+}
+
+.trendy .section-heading {
+  margin-left: 1.3rem;
 }
 
 .trending-pgs {
   overflow-x: auto;
   display: flex;
-  gap: 1.1rem;
-  padding: 2.1rem 2rem 2rem;
-  margin: 0 0 4rem 1rem;
+  gap: 1.15rem;
+  padding: 2.1rem 1.5rem 2rem;
+  margin: 0 0.7rem 4rem 0.7rem;
   scroll-snap-type: x mandatory;
 }
 
 .trending-pgs>div {
+  padding: 0 0.72rem;
   min-width: 255px;
   scroll-snap-align: start;
 }
@@ -490,6 +495,15 @@ button.hamburger.open {
   .trendycol {
     margin: 0 0.6rem;
   }
+
+  .trendy .section-heading {
+    margin-left: 1rem;
+  }
+
+  .trending-pgs {
+    margin: 0 0.12rem 4rem 0.12rem;
+  }
+
 }
 
 
@@ -595,7 +609,7 @@ button.hamburger.open {
   filter: blur(1.3px);
 }
 
-.dark .footer-brand-link::after{
+.dark .footer-brand-link::after {
   mix-blend-mode: luminosity;
 }
 
@@ -724,7 +738,11 @@ button.hamburger.open {
 
 @media (max-width: 408px) {
   .trending-pgs {
-    margin: 0 0 4rem 0.5rem;
+    margin: 0 0 4rem 0rem;
+  }
+
+  .trendy .section-heading {
+    margin-left: 0.3rem;
   }
 }
 
