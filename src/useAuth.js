@@ -33,8 +33,8 @@ export const sendEmailLink = async (email) => {
   } catch (error) {
     if (error.code === 'auth/quota-exceeded') {
       toast.error("🚫 Daily email sign-in quota exceeded.");
-      // throw new Error("quota");
-      throw { type: "quota" };
+      throw new Error("quota");
+      // throw { type: "quota" };
     } else {
       toast.error("❌ Failed to send sign-in link.");
       throw error;
