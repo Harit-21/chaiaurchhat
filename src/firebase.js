@@ -3,7 +3,7 @@ import { getAuth, GoogleAuthProvider, sendSignInLinkToEmail, isSignInWithEmailLi
 
 const firebaseConfig = {
   apiKey: "AIzaSyDKju-b7nF0RB0L3BmDLguF60ArLyoiXOw",
-  authDomain: "chaiaurchhat.vercel.app",
+  authDomain: "themadbrogrammers.firebaseapp.com",
   databaseURL: "https://themadbrogrammers-default-rtdb.firebaseio.com",
   projectId: "themadbrogrammers",
   storageBucket: "themadbrogrammers.firebasestorage.app",
