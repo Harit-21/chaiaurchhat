@@ -27,8 +27,8 @@ export const sendEmailLink = async (email) => {
   try {
     await sendSignInLinkToEmail(auth, email, actionCodeSettings);
     window.localStorage.setItem('emailForSignIn', email);
-    alert("📨 Email link sent!");
+    // alert("📨 Email link sent!");
   } catch (error) {
-    console.error("Email Link Error:", error);
+    // console.error("Email Link Error:", error);
   }
 };

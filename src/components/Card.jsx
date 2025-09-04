@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../css/Card.css';
+import placeholderImage from '../assets/cacfb.png'
 
 const Card = ({ name, location, rating, reviews, image, college }) => {
   const [loaded, setLoaded] = useState(false);
 
   // Optional: base64 1x1 transparent image or a low-res blur
-  const placeholderImage = 'src/assets/cacfb.png';
 
   return (
     <Link

@@ -6,44 +6,47 @@
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
 }
 
-.skeleton-img {
-  height: 15rem;
-  background-color: #ddd;
+.trending-pgs > .skeleton-card {
+  padding: 0;
 }
 
-.skeleton-content {
+.skeleton-card .skeleton-img {
+  height: 15rem;
+  /* background-color: #ddd; */
+}
+
+.skeleton-card .skeleton-content {
   padding: 0.5rem 0.8rem 0.7rem;
 }
 
-.skeleton-line {
+.skeleton-card .skeleton-line {
   height: 12px;
-  background-color: #ddd;
-  border-radius: 4px;
-  margin-bottom: 0.6rem;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
-.skeleton-line.short {
+.skeleton-card .skeleton-line.short {
   width: 60%;
 }
 
-.skeleton-line.long {
+.skeleton-card .skeleton-line.long {
   width: 90%;
 }
 
-.skeleton-rating {
+.skeleton-card .skeleton-rating {
   width: 30%;
   height: 10px;
   background-color: #ccc;
   border-radius: 4px;
 }
 
-.shimmer {
-  animation: shimmer 1.2s infinite linear;
+.skeleton-card .shimmer {
+  animation: shimmercard 1.7s infinite linear;
   background: var(--loadshim);
-  background-size: 1000px 100%;
+  background-size: 2500px 100%;
 }
 
-@keyframes shimmer {
+@keyframes shimmercard {
   0% {
     background-position: -1000px 0;
   }
