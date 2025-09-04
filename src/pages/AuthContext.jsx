@@ -76,7 +76,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, logout }}>
+    <AuthContext.Provider value={{ user, logout, loading: !initialAuthChecked }}>
       {children}
     </AuthContext.Provider>
   );

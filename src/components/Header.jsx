@@ -11,7 +11,7 @@ import cacLogoW from '../assets/cacw.png';
 import cacLogoB from '../assets/cacb.png';
 
 const Header = ({ onReviewClick }) => {
-    const { user, logout } = useAuth();
+    const { user, logout, loading } = useAuth();
     const navigate = useNavigate();
     const [menuOpen, setMenuOpen] = useState(false);
     const [showLoginModal, setShowLoginModal] = useState(false);
@@ -57,7 +57,11 @@ const Header = ({ onReviewClick }) => {
                 <div className="flex items-center gap-4">
 
 
-                    {!user ? (
+                    {loading ? (
+                        <div className="auth-loading-spinner">
+                            <span className="loader" />
+                        </div>
+                    ) : !user ? (
                         <button className="login-btn" onClick={() => setShowLoginModal(true)}>
                             {/* User Icon */}
                             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -145,7 +149,7 @@ const Header = ({ onReviewClick }) => {
                 {menuOpen ? '😉' : '😊'}
             </button>
 
-            {menuOpen && (
+            {menuOpen && !loading && (
                 <div className="mobile-menu">
                     {!user ? (
                         <>
