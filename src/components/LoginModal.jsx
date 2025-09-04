@@ -22,8 +22,11 @@ const LoginModal = ({ siteName, onClose }) => {
             await sendEmailLink(email);
             setEmailStatus("sent");
         } catch (error) {
-            console.error("Email send error:", error);
-            setEmailStatus("error");
+            if (error.message === "quota") {
+                setEmailStatus("quota");
+            } else {
+                setEmailStatus("error");
+            }
         }
     };
 
@@ -94,14 +97,36 @@ const LoginModal = ({ siteName, onClose }) => {
                     <h4>Use your email instead</h4>
                     <p className="section-sub">We'll send you a one-time sign-in link. No passwords, no hassle.</p>
                     <form className="email-form" onSubmit={handleEmailSubmit}>
-                        <input type="email" name="email" placeholder="Enter your school email" required />
-                        <button type="submit" disabled={emailStatus === 'loading'}>
-                            {emailStatus === 'loading' ? 'Sending...' : 'Send Link'}
+                        <input
+                            type="email"
+                            name="email"
+                            placeholder="Enter your school email"
+                            required
+                            disabled={emailStatus === 'loading' || emailStatus === 'quota'}
+                        />
+                        <button
+                            type="submit"
+                            disabled={emailStatus === 'loading' || emailStatus === 'quota'}
+                        >
+                            {emailStatus === 'loading'
+                                ? 'Sending...'
+                                : emailStatus === 'quota'
+                                    ? 'Quota Exceeded'
+                                    : 'Send Link'}
                         </button>
                     </form>
 
-                    {emailStatus === 'sent' && <p className="success-msg">📨 Email sent! Check your inbox.</p>}
-                    {emailStatus === 'error' && <p className="error-msg">❌ Something went wrong. Try again.</p>}
+                    {/* Feedback Messages */}
+                    {emailStatus === 'sent' && (
+                        <p className="success-msg">📨 Email sent! Check your inbox.</p>
+                    )}
+                    {emailStatus === 'error' && (
+                        <p className="error-msg">❌ Something went wrong. Try again.</p>
+                    )}
+                    {emailStatus === 'quota' && (
+                        <p className="error-msg">🚫 Sign-in limit reached. Try again tomorrow or use Google.</p>
+                    )}
+
 
                 </div>
             </div>
