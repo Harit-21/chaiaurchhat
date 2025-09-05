@@ -33,6 +33,8 @@ const CollegePage = () => {
 
     const [college, setCollege] = useState(null);
     const [showAddModal, setShowAddModal] = useState(false);
+    const [resetKey, setResetKey] = useState(Date.now());
+
     const [showLoginModal, setShowLoginModal] = useState(false);
     const { user } = useAuth();
     const siteName = import.meta.env.VITE_CAC_SITE_NAME;
@@ -285,10 +287,20 @@ const CollegePage = () => {
 
             {showAddModal && college?.id && (
                 <AddHostelModal
-                    onClose={() => setShowAddModal(false)}
+                    key={resetKey} // forces full remount
+                    onClose={(submitted = false) => {
+                        if (submitted) {
+                            // Reopen modal with fresh state
+                            setResetKey(Date.now());
+                            setTimeout(() => setShowAddModal(true), 100); // defer re-opening
+                        } else {
+                            setShowAddModal(false);
+                        }
+                    }}
                     defaultCollegeId={college.id}
                 />
             )}
+
             {showLoginModal && (
                 <LoginModal
                     siteName={siteName}

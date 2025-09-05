@@ -12,7 +12,8 @@
 }
 
 .confirm-modal-box {
-    background: white;
+    background: var(--suits-reversed);
+    color: var(--text-primary);
     padding: 24px 30px;
     border-radius: 10px;
     max-width: 400px;

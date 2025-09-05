@@ -41,9 +41,9 @@
 }
 
 .skeleton-card .shimmer {
-  animation: shimmercard 1.7s infinite linear;
+  animation: shimmercard 1.65s infinite linear;
   background: var(--loadshim);
-  background-size: 2500px 100%;
+  background-size: 2450px 100%;
 }
 
 @keyframes shimmercard {

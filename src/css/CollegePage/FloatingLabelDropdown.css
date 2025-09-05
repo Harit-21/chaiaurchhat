@@ -1,0 +1,107 @@
+.fld-wrapper {
+  position: relative;
+  margin-bottom: 1.8rem;
+  font-family: inherit;
+  width: 100%;
+}
+
+/* Label starts centered inside the box */
+.fld-label {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+  font-size: 1rem;
+  pointer-events: none;
+  transition: 0.2s ease all;
+  z-index: 2;
+}
+
+/* When floating: move label to the top edge of the box */
+.fld-label.floating {
+  top: 0;
+  transform: translateY(-50%);
+  font-size: 0.87rem;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: var(--primary);
+  background: var(--form-bg);
+  border-radius: 0.4rem;
+  padding: 0 5px;
+}
+
+/* The dropdown box */
+.fld-dropdown-toggle {
+  width: 100%;
+  height: 3rem;
+  padding: 12px 14px;
+  font-size: 1rem;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  background-color: var(--suits-reversed);
+  cursor: pointer;
+  text-align: left;
+  position: relative;
+  z-index: 1;
+  transition: border-color 0.2s;
+}
+
+.fld-dropdown-toggle:hover{
+    background-color: var(--reviewform-bg);
+}
+
+/* On open/focus */
+.fld-wrapper.open .fld-dropdown-toggle,
+.fld-dropdown-toggle:focus {
+  border-color: var(--primary);
+  background-color: var(--reviewform-bg);
+  outline: none;
+}
+
+/* Dropdown arrow */
+.fld-arrow {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  color: #666;
+}
+
+/* Dropdown options */
+.fld-dropdown-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  max-height: 200px;
+  background: var(--suits-reversed);
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  overflow-y: auto;
+  margin-top: 4px;
+  z-index: 10;
+  list-style: none;
+  padding: 0;
+}
+
+/* Option item */
+.fld-option {
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.fld-option:hover,
+.fld-option:focus {
+  background-color: var(--light);
+  color: var(--text-primary);
+  outline: none;
+}
+
+.fld-option.selected {
+  background-color: var(--primary);
+  color: white;
+  font-weight: 600;
+}

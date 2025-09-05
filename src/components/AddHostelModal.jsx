@@ -1,31 +1,62 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import ConfirmModal from './ConfirmModal';
 import 'react-toastify/dist/ReactToastify.css';
 import '../css/AddHostelModal.css';
-import { apiUrl } from '../api.js';
+import { apiUrl } from '../api';
+import FloatingLabelDropdown from './CollegePage/FloatingLabelDropdown';
 
 const AddHostelModal = ({ onClose, defaultCollegeId = null }) => {
     const [colleges, setColleges] = useState([]);
     const [dropdownOpen, setDropdownOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
     const [submitting, setSubmitting] = useState(false);
     const [imageLoaded, setImageLoaded] = useState(false);
     const [imageError, setImageError] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
+    const [showResetConfirm, setShowResetConfirm] = useState(false);
+
     const dropdownRef = useRef();
 
-    const [formData, setFormData] = useState({
-        name: '',
-        college_id: '',
-        inside_campus: '',
-        gender_type: '',
-        has_food: 'Yes',
-        image: ''
-    });
+    const loadDraft = () => {
+        const saved = localStorage.getItem('addHostelDraft');
+        const fiveMinutes = 5 * 60 * 1000;
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                if (Date.now() - parsed.timestamp < fiveMinutes) {
+                    return {
+                        formData: parsed.formData || {},
+                        step: parsed.step || 0,
+                        searchTerm: parsed.searchTerm || ''
+                    };
+                } else {
+                    localStorage.removeItem('addHostelDraft');
+                }
+            } catch (e) {
+                console.error("Invalid draft data:", e);
+            }
+        }
 
-    const [step, setStep] = useState(0);
+        return {
+            formData: {
+                name: '',
+                college_id: '',
+                inside_campus: '',
+                gender_type: '',
+                has_food: 'Yes',
+                image: ''
+            },
+            step: 0,
+            searchTerm: ''
+        };
+    };
+
+    const draft = loadDraft();
+    const [formData, setFormData] = useState(draft.formData);
+    const [step, setStep] = useState(draft.step);
+    const [searchTerm, setSearchTerm] = useState(draft.searchTerm);
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
+
 
     // Fetch colleges
     useEffect(() => {
@@ -33,7 +64,7 @@ const AddHostelModal = ({ onClose, defaultCollegeId = null }) => {
             .then(res => res.json())
             .then(data => {
                 setColleges(data);
-                if (defaultCollegeId) {
+                if (!draft.formData.college_id && defaultCollegeId) {
                     const found = data.find(c => c.id === defaultCollegeId);
                     if (found) {
                         setFormData(prev => ({ ...prev, college_id: found.id }));
@@ -45,10 +76,11 @@ const AddHostelModal = ({ onClose, defaultCollegeId = null }) => {
     }, [defaultCollegeId]);
 
     // Filter colleges for dropdown search
-    const filteredColleges = colleges.filter(c =>
+    const filteredColleges = useMemo(() => colleges.filter(c =>
         c.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
         c.short_name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        c.city?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+        c.city?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())),
+        [colleges, debouncedSearchTerm]
     );
 
 
@@ -82,6 +114,17 @@ const AddHostelModal = ({ onClose, defaultCollegeId = null }) => {
         }
     }, [formData.image]);
 
+    useEffect(() => {
+        const savedData = {
+            formData,
+            step,
+            searchTerm,
+            timestamp: Date.now()
+        };
+        localStorage.setItem('addHostelDraft', JSON.stringify(savedData));
+    }, [formData, step, searchTerm]);
+
+
     // Highlight text in dropdown
     const highlightText = (text, highlight) => {
         if (!highlight) return text;
@@ -112,10 +155,10 @@ const AddHostelModal = ({ onClose, defaultCollegeId = null }) => {
             inside_campus: '',
             gender_type: '',
             has_food: 'Yes',
-            description: '',
             image: ''
         });
         setSearchTerm('');
+        localStorage.removeItem('addHostelDraft');
         setStep(0);
     };
 
@@ -176,6 +219,11 @@ const AddHostelModal = ({ onClose, defaultCollegeId = null }) => {
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
+            if (step < steps.length - 1) {
+                nextStep();
+            } else {
+                handleSubmit(e);
+            }
         }
     };
 
@@ -220,7 +268,8 @@ const AddHostelModal = ({ onClose, defaultCollegeId = null }) => {
             const dup = pgList.find(pg => pg.name.trim().toLowerCase() === formData.name.trim().toLowerCase());
 
             if (dup) {
-                toast.error("A hostel with this name already exists.");
+                const shortName = colleges.find(c => c.id === formData.college_id).short_name;
+                toast.error(`A hostel with this name already exists near ${shortName}.`);
                 setSubmitting(false);
                 return;
             }
@@ -242,6 +291,7 @@ const AddHostelModal = ({ onClose, defaultCollegeId = null }) => {
             }
 
             toast.success("Hostel added successfully!");
+            localStorage.removeItem('addHostelDraft');
             resetForm();
             onClose();
         } catch (err) {
@@ -340,58 +390,35 @@ const AddHostelModal = ({ onClose, defaultCollegeId = null }) => {
 
             case 2:
                 return (
-                    <div className="ahm-floating-label step-page">
-                        <select
-                            name="inside_campus"
-                            value={formData.inside_campus}
-                            onChange={handleChange}
-                            onKeyDown={handleKeyDown}
-                            required
-                            autoFocus
-                        >
-                            <option value="" disabled>-- Select --</option>
-                            <option value="Inside Campus">Inside Campus</option>
-                            <option value="Outside Campus">Outside Campus</option>
-                        </select>
-                        <label>Is it inside or outside campus?</label>
-                    </div>
+                    <FloatingLabelDropdown
+                        label="Is it inside or outside campus?"
+                        options={['Inside Campus', 'Outside Campus']}
+                        value={formData.inside_campus}
+                        onChange={(val) => setFormData(prev => ({ ...prev, inside_campus: val }))}
+                        name="inside_campus"
+                    />
                 );
 
             case 3:
                 return (
-                    <div className="ahm-floating-label step-page">
-                        <select
-                            name="gender_type"
-                            value={formData.gender_type}
-                            onChange={handleChange}
-                            onKeyDown={handleKeyDown}
-                            required
-                            autoFocus
-                        >
-                            <option value="" disabled>-- Select --</option>
-                            <option value="Boys Only">Only Boys</option>
-                            <option value="Girls Only">Only Girls</option>
-                            <option value="Co-ed">Co-ed</option>
-                        </select>
-                        <label>Gender Type</label>
-                    </div>
+                    <FloatingLabelDropdown
+                        label="Gender Type"
+                        options={['Boys Only', 'Girls Only', 'Co-ed']}
+                        value={formData.gender_type}
+                        onChange={(val) => setFormData(prev => ({ ...prev, gender_type: val }))}
+                        name="gender_type"
+                    />
                 );
 
             case 4:
                 return (
-                    <div className="ahm-floating-label step-page">
-                        <select
-                            name="has_food"
-                            value={formData.has_food}
-                            onChange={handleChange}
-                            onKeyDown={handleKeyDown}
-                            autoFocus
-                        >
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
-                        </select>
-                        <label>Food Provided?</label>
-                    </div>
+                    <FloatingLabelDropdown
+                        label="Food Provided?"
+                        options={['Yes', 'No']}
+                        value={formData.has_food}
+                        onChange={(val) => setFormData(prev => ({ ...prev, has_food: val }))}
+                        name="has_food"
+                    />
                 );
 
             case 5:
@@ -464,6 +491,15 @@ const AddHostelModal = ({ onClose, defaultCollegeId = null }) => {
                     {renderStep()}
 
                     <div className="ahm-form-navigation">
+                        {step < steps.length && (
+                            <button
+                                type="button"
+                                onClick={() => setShowResetConfirm(true)}
+                                className="ahm-reset-btn"
+                            >
+                                Reset
+                            </button>
+                        )}
                         {step > 0 && (
                             <button type="button" onClick={prevStep} className="ahm-nav-btn ahm-back-btn">
                                 ← Back
@@ -489,8 +525,6 @@ const AddHostelModal = ({ onClose, defaultCollegeId = null }) => {
                         )}
                     </div>
                 </form>
-
-                <ToastContainer position="top-right" autoClose={3000} />
             </div>
             {showConfirm && (
                 <ConfirmModal
@@ -499,9 +533,19 @@ const AddHostelModal = ({ onClose, defaultCollegeId = null }) => {
                     onCancel={() => setShowConfirm(false)}
                 />
             )}
+            {showResetConfirm && (
+                <ConfirmModal
+                    message="Are you sure you want to reset the entire form? This will delete all entered data."
+                    onConfirm={() => {
+                        resetForm();
+                        setShowResetConfirm(false);
+                        onClose(true);
+                    }}
+                    onCancel={() => setShowResetConfirm(false)}
+                />
+            )}
         </div>
     );
 };
 
 export default AddHostelModal;
-
