@@ -7,6 +7,7 @@ import '../css/MyReviews.css';
 import FancyReviewForm from '../components/FancyReviewForm';
 import ReviewModal from '../components/ReviewModal';
 import { apiUrl } from '../api.js';
+import FullPageLoader from '../components/FullPageLoader.jsx';
 
 
 const MyReviews = () => {
@@ -103,6 +104,10 @@ const MyReviews = () => {
     //     return () => clearInterval(interval);
     // }, []);
 
+    
+        if (loading) {
+            return <FullPageLoader isHome={false} />;
+        }
 
     if (!user) {
         return (
@@ -115,18 +120,6 @@ const MyReviews = () => {
                 </div>
                 <main style={{ padding: "2rem", textAlign: "center" }}>
                     <h2>Please log in to view your reviews.</h2>
-                </main>
-                <Footer />
-            </div>
-        );
-    }
-
-    if (loading) {
-        return (
-            <div>
-                <Header />
-                <main style={{ padding: "2rem" }}>
-                    <h2>Loading your reviews...</h2>
                 </main>
                 <Footer />
             </div>

@@ -10,9 +10,13 @@ import { apiUrl } from '../api';
 import { Helmet } from 'react-helmet-async';
 import SkeletonCard from '../components/cardloader/SkeletonCard';
 import SkeletonMiniCard from '../components/cardloader/SkeletonMiniCard';
+import FullPageLoader from '../components/FullPageLoader';
 
 const Home = () => {
   const navigate = useNavigate();
+  const [showLoader, setShowLoader] = useState(true);
+  const [fadeOut, setFadeOut] = useState(false);
+
   const [homepageColleges, setHomepageColleges] = useState([]);
   const [homepagePGs, setHomepagePGs] = useState([]);
 
@@ -33,6 +37,42 @@ const Home = () => {
   const [allColleges, setAllColleges] = useState([]);
 
   const siteName = import.meta.env.VITE_CAC_SITE_NAME;
+
+  // useEffect(() => {
+  //   const showDuration = 2000; // 2 seconds
+  //   const fadeDuration = 500;  // 0.5s fade-out
+
+  //   const timer = setTimeout(() => {
+  //     setFadeOut(true);
+  //     setTimeout(() => {
+  //       setShowLoader(false);
+  //     }, fadeDuration);
+  //   }, showDuration);
+
+  //   return () => clearTimeout(timer);
+  // }, []);
+
+  useEffect(() => {
+    const alreadyVisited = sessionStorage.getItem("homepageVisited");
+
+    if (!alreadyVisited) {
+      const showDuration = 2000; // ms
+      const fadeDuration = 500;
+
+      const timer = setTimeout(() => {
+        setFadeOut(true);
+        setTimeout(() => {
+          setShowLoader(false);
+          sessionStorage.setItem("homepageVisited", "true");
+        }, fadeDuration);
+      }, showDuration);
+
+      return () => clearTimeout(timer);
+    } else {
+      setShowLoader(false); // if already visited, don't show loader
+    }
+  }, []);
+
 
   // Fetch homepage data once on mount
   useEffect(() => {
@@ -122,6 +162,10 @@ const Home = () => {
       clearTimeout(delayDebounce);
     };
   }, [searchQuery]);
+
+  if (showLoader) {
+    return <FullPageLoader fadeOut={fadeOut} isHome={true} />;
+  }
 
 
   return (
