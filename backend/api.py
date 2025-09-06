@@ -120,7 +120,7 @@ def search_entities():
 
     # Search in PGs
     pg_resp = requests.get(
-        f"{SUPABASE_URL}/rest/v1/pg_whole_info?or=(name.ilike.*{query}*,location.ilike.*{query}*,college_city.ilike.*{query}*,college_short_name.ilike.*{query}*)&select=name,location,college_city,college_short_name",
+        f"{SUPABASE_URL}/rest/v1/pg_whole_info?or=(name.ilike.*{query}*,location.ilike.*{query}*,college_city.ilike.*{query}*,college_name.ilike.*{query}*,college_short_name.ilike.*{query}*)&select=name,location,college_city,college_name,college_short_name",
         headers=HEADERS
     )
 
@@ -542,4 +542,5 @@ def remove_from_wishlist():
 
 
 if __name__ == "__main__":
+
     app.run(debug=True, port=5000)
