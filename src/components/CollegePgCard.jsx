@@ -4,12 +4,14 @@ import { Link, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { apiUrl } from '../api';
+import placeholderImage from '../assets/cacfb.png'
 
 
 const CollegePgCard = ({ id, name, gender_type, rating, reviews, image, user, onLoginRequired, isWishlisted = false }) => {
   const { collegeName } = useParams();
   const [wishlisted, setWishlisted] = useState(isWishlisted);
   const [loading, setLoading] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   const toggleWishlist = async (e) => {
     e.preventDefault();
@@ -62,7 +64,21 @@ const CollegePgCard = ({ id, name, gender_type, rating, reviews, image, user, on
   return (
     <Link to={`/college/${collegeName}/pg/${encodeURIComponent(name)}`} className="pg-card-link">
       <div className="college-pg-card">
-        <img src={image} alt={name} className="pg-image" />
+        {/* <img src={image} alt={name} className="pg-image" /> */}
+        <div className="pgcard-image-wrapper">
+          <img
+            src={placeholderImage}
+            className="placeholder"
+            alt="placeholder"
+          />
+          <img
+            src={image}
+            alt={name}
+            className={`real-image ${loaded ? 'loaded' : ''}`}
+            onLoad={() => setLoaded(true)}
+            loading="lazy"
+          />
+        </div>
 
         <div className="pg-details">
           <div className="pg-top-row">
