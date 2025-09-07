@@ -3,7 +3,8 @@ import '../css/PGDetail/FancyReviewForm.css';
 import { useAuth } from '../pages/AuthContext';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { apiUrl } from '../api.js';
+import { apiUrl } from '../api';
+import axios from 'axios';
 
 const ratingLabels = {
     1: 'Poor',
@@ -24,6 +25,7 @@ const emojiRating = {
 const FancyReviewForm = ({ pgName, onClose, step, setStep, pgMetadata, existingReview, onSave }) => {
     const { user } = useAuth();
     const hasFood = pgMetadata?.has_food;
+    const [loading, setLoading] = useState(false);
 
     // Internal controlled step management
     const [internalStep, setInternalStep] = useState(step || 1);
@@ -109,51 +111,103 @@ const FancyReviewForm = ({ pgName, onClose, step, setStep, pgMetadata, existingR
 
     const [images, setImages] = useState([]);
     const fileInputRef = useRef();
-    const MAX_IMAGES = 7;
+    const MAX_IMAGES = 5;
 
     // Optional: for visual error messages (replace alert if needed)
     const [uploadError, setUploadError] = useState('');
+    const [imageUploading, setImageUploading] = useState(false);
 
-    const handleImageUpload = (e) => {
+    const handleImageUpload = async (e) => {
         const files = Array.from(e.target.files || []);
         if (files.length === 0) return;
 
+        setImageUploading(true);
         const existingKeys = images.map(img => img.file.name + img.file.size);
-        const newUploads = [];
-        let error = ''; // Temp error tracker
+        const uploaded = [];
+        let error = '';
+
+        // 👉 Fetch signature from Flask backend
+        let auth;
+        try {
+            const res = await axios.get('http://localhost:5000/imagekit-auth');
+            auth = res.data;
+        } catch (err) {
+            console.error("Failed to get ImageKit auth", err);
+            toast.error("Auth fetch failed");
+            return;
+        }
 
         for (let file of files) {
             const fileKey = file.name + file.size;
-
             if (existingKeys.includes(fileKey)) {
                 error = `You've already added "${file.name}"`;
                 continue;
             }
 
-            if (images.length + newUploads.length >= MAX_IMAGES) {
+            if (images.length + uploaded.length >= MAX_IMAGES) {
                 error = 'You can upload a maximum of 7 images.';
                 break;
             }
 
-            newUploads.push({
-                file,
-                url: URL.createObjectURL(file),
-                caption: '',
-                tagPrompt: 'What does this photo show?',
-            });
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('fileName', file.name);
+            formData.append('folder', '/reviews');
+            formData.append('publicKey', auth.publicKey);
+            formData.append('signature', auth.signature);
+            formData.append('expire', auth.expire);
+            formData.append('token', auth.token);
+
+            try {
+                const response = await axios.post('https://upload.imagekit.io/api/v1/files/upload', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+
+                const { url, fileId } = response.data;
+
+                uploaded.push({
+                    file,
+                    url,
+                    fileId,
+                    caption: '',
+                    tagPrompt: 'What does this photo show?',
+                });
+
+            } catch (err) {
+                console.error('ImageKit Upload Failed:', err);
+                error = 'Failed to upload image.';
+            }
         }
 
-        if (newUploads.length > 0) {
-            setImages(prev => [...prev, ...newUploads]);
-            setUploadError(''); // Clear previous error
+        if (uploaded.length > 0) {
+            setImages(prev => [...prev, ...uploaded]);
+            setUploadError('');
         } else if (error) {
             setUploadError(error);
         }
 
-        // Reset file input so same file can be chosen again
+        setImageUploading(false);
+
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
+    };
+
+    const handleRemoveImage = async (index) => {
+        const imageToRemove = images[index];
+
+        if (imageToRemove?.fileId) {
+            try {
+                await axios.post('http://localhost:5000/imagekit-delete', {
+                    fileId: imageToRemove.fileId
+                });
+            } catch (err) {
+                console.error("Failed to delete image from ImageKit:", err);
+                toast.warn("Image removed locally but failed to delete from ImageKit.");
+            }
+        }
+
+        setImages(prev => prev.filter((_, i) => i !== index));
     };
 
 
@@ -161,6 +215,7 @@ const FancyReviewForm = ({ pgName, onClose, step, setStep, pgMetadata, existingR
     const [submitted, setSubmitted] = useState(false);
 
     const handleSubmit = () => {
+        setLoading(true); // Start loading
         const reviewData = {
             pgName,
             name: user?.displayName || "Anonymous",
@@ -220,6 +275,9 @@ const FancyReviewForm = ({ pgName, onClose, step, setStep, pgMetadata, existingR
             .catch(err => {
                 console.error('Request failed:', err);
                 toast.error('Something went wrong. Please try again.');
+            })
+            .finally(() => {
+                setLoading(false); // End loading
             });
     };
 
@@ -455,16 +513,23 @@ const FancyReviewForm = ({ pgName, onClose, step, setStep, pgMetadata, existingR
                     <h2>Upload Photos</h2>
                     <p className="photo-tip">Drag and drop, or select images of your room, common areas, or view!</p>
 
-                    <label className="photo-drop">
+                    <label className={`photo-drop ${imageUploading ? 'disabled' : ''}`}>
                         <input
                             type="file"
                             multiple
                             accept="image/*"
                             ref={fileInputRef}
                             onChange={handleImageUpload}
+                            disabled={imageUploading}
                             style={{ display: 'none' }}
                         />
-                        <span>📷 Got Cool Pictures!</span>
+                        <span>
+                            {imageUploading ? (
+                                <>
+                                    Uploading... <span className="loader" />
+                                </>
+                            ) : '📷 Got Cool Pictures!'}
+                        </span>
                     </label>
 
                     {uploadError && <div className="error-message">{uploadError}</div>}
@@ -486,9 +551,7 @@ const FancyReviewForm = ({ pgName, onClose, step, setStep, pgMetadata, existingR
                                 <span className="tag-prompt">{img.tagPrompt}</span>
                                 <button
                                     className="remove-image"
-                                    onClick={() =>
-                                        setImages(prev => prev.filter((_, i) => i !== idx))
-                                    }
+                                    onClick={() => handleRemoveImage(idx)}
                                 >
                                     ✕
                                 </button>
@@ -560,9 +623,18 @@ const FancyReviewForm = ({ pgName, onClose, step, setStep, pgMetadata, existingR
                             ⚠️ Editing your review will reset helpful votes to 0.
                         </p>
                     )}
-                    <button className="submit-button" onClick={handleSubmit}>
-                        ✅ Submit Review
+                    <button
+                        className="submit-button"
+                        onClick={handleSubmit}
+                        disabled={loading}
+                    >
+                        {loading ? (
+                            <>
+                                ⏳ Submitting... <span className="loader" />
+                            </>
+                        ) : '✅ Submit Review'}
                     </button>
+
                 </div>
             )}
 
@@ -581,4 +653,3 @@ const FancyReviewForm = ({ pgName, onClose, step, setStep, pgMetadata, existingR
 };
 
 export default FancyReviewForm;
-

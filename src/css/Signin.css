@@ -468,6 +468,7 @@ button:hover {
 }
 
 .loader {
+  display: inline-block;
   width: 24px;
   height: 24px;
   border: 3px solid #ccc;

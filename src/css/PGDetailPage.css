@@ -487,6 +487,11 @@ h4 {
   text-decoration: underline;
 }
 
+.review-extras {
+  display: flex;
+  gap: 1.5rem;
+}
+
 .extra-line {
   color: var(--text-primary);
 }
@@ -494,17 +499,24 @@ h4 {
 /* Images */
 .review-images {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  gap: 7px;
   margin-top: 0.5rem;
 }
 
 .review-images img {
-  width: 120px;
-  height: 90px;
+  scroll-snap-align: start;
+  width: 190px;
+  height: 130px;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: 1rem;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  transition: all ease-in-out 0.2s;
+}
+
+.review-images img:hover {
+  filter: blur(0.2px) brightness(1.05) contrast(1.1) saturate(1.05) drop-shadow(0 0 2px var(--suits));
 }
 
 .date-line {
@@ -706,8 +718,8 @@ h4 {
     font-size: clamp(0.8rem, 4.7vw, 1.1rem);
   }
 
-  .botright p{
-    font-size: clamp(0.7rem, 4vw, 1.3rem); 
+  .botright p {
+    font-size: clamp(0.7rem, 4vw, 1.3rem);
   }
 
   .see-photos {

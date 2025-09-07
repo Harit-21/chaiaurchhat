@@ -225,6 +225,11 @@ button:disabled {
     color: var(--text-primary);
 }
 
+.photo-drop .loader, .submit-button .loader{
+    width: 15px;
+    height: 15px;
+}
+
 .photo-preview {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));

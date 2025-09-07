@@ -1,12 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { apiUrl } from '../api';
+import '../css/PGDetail/StudentReviews.css';
 
 const StudentReviews = ({ reviews, isMyReviewsPage = false }) => {
     const [disabledButtons, setDisabledButtons] = useState(new Set());
     const [reviewHelpfulCounts, setReviewHelpfulCounts] = useState({});
     const [expandedComments, setExpandedComments] = useState({});
+
+    // Modal related states
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalImageIndex, setModalImageIndex] = useState(0);
+    const [modalImages, setModalImages] = useState([]);
+
+    const tiltRef = useRef(null);
 
     useEffect(() => {
         const counts = {};
@@ -19,6 +27,7 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false }) => {
         setDisabledButtons(new Set(clicked));
     }, [reviews]);
 
+    // Helpful click handler (unchanged)
     const handleHelpfulClick = (reviewId) => {
         const clickedSet = new Set(disabledButtons);
         const wasHelpful = clickedSet.has(reviewId);
@@ -31,7 +40,6 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false }) => {
             .then(res => res.json())
             .then(() => {
                 toast.success(wasHelpful ? "Feedback removed!" : "Thanks for the feedback!");
-
                 setReviewHelpfulCounts((prev) => ({
                     ...prev,
                     [reviewId]: (prev[reviewId] || 0) + (wasHelpful ? -1 : 1),
@@ -53,13 +61,103 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false }) => {
             });
     };
 
-
     const toggleComment = (id) => {
         setExpandedComments(prev => ({
             ...prev,
             [id]: !prev[id]
         }));
     };
+
+    // Open modal and set images + index
+    const openModal = (images, index) => {
+        setModalImages(images);
+        setModalImageIndex(index);
+        setIsModalOpen(true);
+    };
+
+    // Close modal and reset tilt
+    const closeModal = () => {
+        setIsModalOpen(false);
+        if (tiltRef.current) {
+            tiltRef.current.style.transform = 'rotateX(0deg) rotateY(0deg)';
+        }
+    };
+
+    // Keyboard navigation in modal
+    useEffect(() => {
+        if (!isModalOpen) return;
+
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+            if (e.key === 'ArrowRight') {
+                setModalImageIndex((prev) => (prev + 1) % modalImages.length);
+            }
+            if (e.key === 'ArrowLeft') {
+                setModalImageIndex((prev) => (prev - 1 + modalImages.length) % modalImages.length);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isModalOpen, modalImages.length]);
+
+    // Tilt effect on mouse move
+    const handleMouseMove = (e) => {
+        if (!tiltRef.current) return;
+        const rect = tiltRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left; // X relative to image container
+        const y = e.clientY - rect.top;
+
+        const rotateX = ((y / rect.height) - 0.5) * -30; // range -15 to 15 degrees approx
+        const rotateY = ((x / rect.width) - 0.5) * 30;
+
+        tiltRef.current.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    };
+
+    // Reset tilt when mouse leaves
+    const handleMouseLeave = () => {
+        if (tiltRef.current) {
+            tiltRef.current.style.transform = 'rotateX(0deg) rotateY(0deg)';
+        }
+    };
+
+    // Device orientation tilt support (for mobile)
+    useEffect(() => {
+        if (!isModalOpen) return;
+
+        const handleOrientation = (event) => {
+            const { beta, gamma } = event; // beta: front-back tilt, gamma: left-right
+            if (tiltRef.current) {
+                const rotateX = Math.min(Math.max(beta - 45, -15), 15) / 3;
+                const rotateY = Math.min(Math.max(gamma, -15), 15) / 3;
+                tiltRef.current.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            }
+        };
+
+        if (
+            typeof DeviceOrientationEvent !== 'undefined' &&
+            DeviceOrientationEvent.requestPermission
+        ) {
+            DeviceOrientationEvent.requestPermission()
+                .then(response => {
+                    if (response === 'granted') {
+                        window.addEventListener('deviceorientation', handleOrientation);
+                    }
+                })
+                .catch(console.error);
+        } else {
+            window.addEventListener('deviceorientation', handleOrientation);
+        }
+
+        return () => {
+            window.removeEventListener('deviceorientation', handleOrientation);
+            if (tiltRef.current) {
+                tiltRef.current.style.transform = 'rotateX(0deg) rotateY(0deg)';
+            }
+        };
+    }, [isModalOpen]);
 
     return (
         <section className="pg-reviews">
@@ -95,22 +193,14 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false }) => {
                                 <span
                                     className="read-more-toggle"
                                     onClick={() => toggleComment(review.id)}
+                                    style={{ cursor: 'pointer', color: 'blue' }}
                                 >
                                     {isExpanded ? ' Show less' : 'Read more'}
                                 </span>
                             )}
                         </div>
 
-                        {/* Images */}
-                        {review.images?.length > 0 && (
-                            <div className="review-images">
-                                {review.images.map((img, i) => (
-                                    <img key={i} src={img} alt="review" />
-                                ))}
-                            </div>
-                        )}
-
-                        {/* Extra feedback (Happiness & Rent Opinion) */}
+                        {/* Extra feedback */}
                         <div className="review-extras">
                             {review.happiness_level && (
                                 <div className="extra-line">
@@ -124,6 +214,21 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false }) => {
                             )}
                         </div>
 
+                        {/* Images */}
+                        {review.images?.length > 0 && (
+                            <div className="review-images">
+                                {review.images.map((img, i) => (
+                                    <img
+                                        key={i}
+                                        src={img}
+                                        alt={`Review ${i}`}
+                                        onClick={() => openModal(review.images, i)}
+                                        style={{ cursor: 'pointer' }}
+                                    />
+                                ))}
+                            </div>
+                        )}
+
                         {/* Reactions */}
                         <div className="reactions">
                             {!isMyReviewsPage && (
@@ -131,16 +236,66 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false }) => {
                                     onClick={() => handleHelpfulClick(review.id)}
                                     className={`helpful-button ${isDisabled ? 'active' : ''}`}
                                 >
-                                    <span id='helpful'>🫱🏻‍🫲🏼</span> {reviewHelpfulCounts[review.id] || 0}
+                                    <span id="helpful">🫱🏻‍🫲🏼</span> {reviewHelpfulCounts[review.id] || 0}
                                 </button>
-                                /* <button className="comment-button">💬 Comment</button> */
                             )}
-                            <span className='date-line'>{review.date}</span>
+                            <span className="date-line">{review.date}</span>
                             <span className="room-type" rooms="Room type">{review.room_type}</span>
                         </div>
                     </div>
                 );
             })}
+
+            {/* Modal */}
+            {isModalOpen && (
+                <div className="hostel-image-overlay" onClick={closeModal}>
+                    <div
+                        className="hostel-image-modal"
+                        ref={tiltRef}
+                        onClick={e => e.stopPropagation()}
+                        onMouseMove={handleMouseMove}
+                        onMouseLeave={handleMouseLeave}
+                    >
+                        <button className="hostelimg-close-button" onClick={closeModal} aria-label="Close image modal">
+                            X
+                        </button>
+                        <div className="image-n-desc">
+                            <img
+                                src={modalImages[modalImageIndex]}
+                                alt="Full view"
+                                draggable={false}
+                            />
+                            <div className="image-caption">
+                                {`Pic ${modalImageIndex + 1} of ${modalImages.length}`}
+                            </div>
+                        </div>
+                        {modalImages.length > 1 && (
+                            <div className="leftright-buttons">
+                                <button
+                                    onClick={() =>
+                                        setModalImageIndex((prev) =>
+                                            prev === 0 ? modalImages.length - 1 : prev - 1
+                                        )
+                                    }
+                                    aria-label="Previous Image"
+                                >
+                                    ⮜
+                                </button>
+                                <button
+                                    onClick={() =>
+                                        setModalImageIndex((prev) =>
+                                            prev === modalImages.length - 1 ? 0 : prev + 1
+                                        )
+                                    }
+                                    aria-label="Next Image"
+                                >
+                                    ⮞
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </section>
     );
 };

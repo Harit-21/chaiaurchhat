@@ -102,7 +102,6 @@ html {
   opacity: 1;
 }
 
-
 /* 
 .header h1 span {
   color: #ff5722;
@@ -509,13 +508,19 @@ button.hamburger.open {
 
 /* === Info Section === */
 .info-section {
-  background-color: white;
+  background-color: rgba(255, 255, 255, 0.13);
   border-radius: 1rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow);
   padding: 2.5rem;
   text-align: center;
   max-width: 800px;
   margin: 5rem auto;
+  transition: all ease-in-out 0.2s;
+}
+
+.info-section:hover{
+  transform: scale(1.045);
+  box-shadow: 2px 10px 30px var(--footer-shadow);
 }
 
 .info-section h3 {
@@ -527,7 +532,7 @@ button.hamburger.open {
 
 .info-section p {
   font-size: 1.1rem;
-  color: #4b5563;
+  color: var(--text-secondary);
   margin-bottom: 1rem;
 }
 
@@ -716,6 +721,10 @@ button.hamburger.open {
 
 /* Responsive */
 @media (max-width: 768px) {
+  .info-section {
+    margin: 5rem 2rem;
+  }
+
   .site-footer {
     padding: 4rem 1.65rem 1.1rem;
   }
@@ -737,6 +746,10 @@ button.hamburger.open {
 
 
 @media (max-width: 408px) {
+  .info-section {
+    padding: 2rem 1.5rem;
+  }
+
   .trending-pgs {
     margin: 0 0 4rem 0rem;
   }

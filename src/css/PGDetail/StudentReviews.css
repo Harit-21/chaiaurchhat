@@ -1,0 +1,90 @@
+.hostel-image-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0,0,0,0.65);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99;
+  /* cursor: zoom-out; */
+}
+
+.hostel-image-modal {
+  max-width: 95vw;
+  max-height: 90vh;
+  background-color: transparent;
+  transition: transform 0.3s ease;
+  cursor: grab;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.hostel-image-modal img {
+  display: block;
+  max-width: 100%;
+  max-height: 85vh;
+  border-radius: 1.3rem;
+  user-select: none;
+  pointer-events: none;
+  box-shadow: var(--shadow);
+}
+
+.hostelimg-close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.775);
+  padding: 0 8px;
+  border-radius: 2rem;
+  color: white;
+  font-size: 1.1rem;
+  cursor: pointer;
+  z-index: 10;
+  user-select: none;
+}
+
+.hostelimg-close-button:hover{
+    background: white;
+    color: black;
+}
+
+.image-n-desc {
+  position: relative;
+}
+
+.image-caption {
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+  border-radius: 0 0 1rem 1rem;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 0.9rem;
+  padding: 6px 12px;
+  text-align: center;
+  user-select: none;
+}
+
+.leftright-buttons {
+  margin-top: 0.45rem;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  z-index: 10;
+}
+
+.leftright-buttons button {
+  background: rgba(0, 0, 0, 0.628);
+  color: white;
+  font-size: 1.5rem;
+  padding: 0 8px;
+  border-radius: 4rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+}
+
+.leftright-buttons button:hover {
+  background: rgba(0,255,255,0.7);
+}
