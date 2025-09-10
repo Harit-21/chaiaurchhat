@@ -378,7 +378,16 @@ def submit_review():
         "gender_type": data.get('genderType'),
         "rent_opinion": data.get('rentOpinion'),
         "happiness_level": data.get('happinessLevel'),
-        "images": [img.get('url') for img in data.get('images', [])],
+        "images": [
+            {
+                "url": img.get("url"),
+                "fileId": img.get("fileId"),
+                "caption": img.get("caption"),
+                "originalName": img.get("originalName"),
+                "originalSize": img.get("originalSize")
+            }
+            for img in data.get("images", [])
+        ],
         "date": datetime.now(timezone.utc).date().isoformat(),
         "helpful_count": 0,
         "verified": verified
@@ -430,7 +439,16 @@ def update_review():
         "room_type": data.get('roomType'),
         "rent_opinion": data.get('rentOpinion'),
         "happiness_level": data.get('happinessLevel'),
-        "images": [img.get('url') for img in data.get('images', [])],
+        "images": [
+            {
+                "url": img.get("url"),
+                "fileId": img.get("fileId"),
+                "caption": img.get("caption"),
+                "originalName": img.get("originalName"),
+                "originalSize": img.get("originalSize")
+            }
+            for img in data.get("images", [])
+        ],
         "date": datetime.now(timezone.utc).isoformat(),  # full ISO datetime
         "helpful_count": 0
     }

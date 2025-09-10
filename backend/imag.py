@@ -34,31 +34,46 @@ def imagekit_auth():
         "signature": signature,
         "publicKey": PUBLIC_API_KEY
     })
-
-# ✅ Add this route to delete an image
 @app.route('/imagekit-delete', methods=['POST'])
 def imagekit_delete():
     data = request.json
     file_id = data.get("fileId")
+    file_url = data.get("url")
 
-    if not file_id:
-        return jsonify({"success": False, "error": "Missing fileId"}), 400
+    if not file_id or not file_url:
+        return jsonify({"success": False, "error": "Missing fileId or url"}), 400
 
-    url = f"https://api.imagekit.io/v1/files/{file_id}"
+    # Step 1: Delete the file
+    delete_url = f"https://api.imagekit.io/v1/files/{file_id}"
     auth_header = base64.b64encode(f"{PRIVATE_API_KEY}:".encode()).decode()
 
-    response = requests.delete(url, headers={
+    delete_response = requests.delete(delete_url, headers={
         "Authorization": f"Basic {auth_header}"
     })
 
-    if response.status_code == 204:
+    if delete_response.status_code != 204:
+        return jsonify({
+            "success": False,
+            "status": delete_response.status_code,
+            "error": delete_response.text
+        }), delete_response.status_code
+
+    # Step 2: Purge CDN cache
+    purge_response = requests.post(
+        "https://api.imagekit.io/v1/files/purge",
+        headers={"Authorization": f"Basic {auth_header}"},
+        json={"url": file_url}
+    )
+
+    if purge_response.status_code == 200:
         return jsonify({"success": True})
     else:
         return jsonify({
             "success": False,
-            "status": response.status_code,
-            "error": response.text
-        }), response.status_code
+            "status": purge_response.status_code,
+            "error": purge_response.text
+        }), purge_response.status_code
+
 
 if __name__ == '__main__':
     app.run(port=5000)
