@@ -384,7 +384,8 @@ def submit_review():
                 "fileId": img.get("fileId"),
                 "caption": img.get("caption"),
                 "originalName": img.get("originalName"),
-                "originalSize": img.get("originalSize")
+                "originalSize": img.get("originalSize"),
+                "imageTags": img.get("imageTags")
             }
             for img in data.get("images", [])
         ],
@@ -445,7 +446,8 @@ def update_review():
                 "fileId": img.get("fileId"),
                 "caption": img.get("caption"),
                 "originalName": img.get("originalName"),
-                "originalSize": img.get("originalSize")
+                "originalSize": img.get("originalSize"),
+                "imageTags": img.get("imageTags")
             }
             for img in data.get("images", [])
         ],
