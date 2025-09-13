@@ -34,6 +34,7 @@ def imagekit_auth():
         "signature": signature,
         "publicKey": PUBLIC_API_KEY
     })
+
 @app.route('/imagekit-delete', methods=['POST'])
 def imagekit_delete():
     data = request.json
@@ -74,6 +75,39 @@ def imagekit_delete():
             "error": purge_response.text
         }), purge_response.status_code
 
+@app.route('/imagekit-batch-delete', methods=['POST'])
+def imagekit_batch_delete():
+    data = request.json
+    file_ids = data.get("fileIds")
+
+    if not file_ids or not isinstance(file_ids, list):
+        return jsonify({"success": False, "error": "Missing or invalid fileIds"}), 400
+
+    auth_header = base64.b64encode(f"{PRIVATE_API_KEY}:".encode()).decode()
+
+    deleted = []
+    failed = []
+
+    for file_id in file_ids:
+        delete_url = f"https://api.imagekit.io/v1/files/{file_id}"
+        delete_response = requests.delete(delete_url, headers={
+            "Authorization": f"Basic {auth_header}"
+        })
+
+        if delete_response.status_code == 204:
+            deleted.append(file_id)
+        else:
+            failed.append({
+                "fileId": file_id,
+                "status": delete_response.status_code,
+                "error": delete_response.text
+            })
+
+    return jsonify({
+        "success": True,
+        "deleted": deleted,
+        "failed": failed
+    })
 
 if __name__ == '__main__':
     app.run(port=5000)
