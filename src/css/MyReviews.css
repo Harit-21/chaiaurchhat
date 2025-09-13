@@ -135,6 +135,12 @@
     cursor: default;
 }
 
+.image-info-edit {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+}
+
 .my-reviews-list button:disabled {
     opacity: 0.92;
     cursor: not-allowed;

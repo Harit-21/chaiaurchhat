@@ -6,33 +6,41 @@ import ReviewSummaryPanel from '../components/ReviewSummaryPanel';
 import StudentReviews from '../components/StudentReviews';
 import RealityCheck from '../components/RealityCheck';
 import ReviewModal from '../components/ReviewModal';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import LoginModal from '../components/LoginModal';
 import '../css/Signin.css';
 import { useAuth } from '../pages/AuthContext';
 import { apiUrl } from '../api';
 import FullPageLoader from '../components/FullPageLoader';
 import SkeletonCard from '../components/cardloader/SkeletonCard';
-import DataCache from '../cache/DataCache';
 import { Helmet } from 'react-helmet-async';
+import { useQuery } from '@tanstack/react-query';
+import { fetchAllPGs, fetchPGDetail, fetchRecommendations } from '../api/PgPageQueries';
+import PhotoGalleryModal from '../components/PGDetailPage/PhotoGalleryModal';
 
 const PGDetailPage = () => {
     const { pgName, collegeName } = useParams();
-    const [similarPGs, setSimilarPGs] = useState([]);
-    const [similarPGsLoading, setSimilarPGsLoading] = useState(true);
-    const [pgData, setPgData] = useState([]);
-    const [pg, setPg] = useState(null);
-    const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [pgMetadata, setPgMetadata] = useState({ gender_type: '', has_food: true });
     const { user } = useAuth();
     const [showLoginModal, setShowLoginModal] = useState(false);
+    const [showGallery, setShowGallery] = useState(false);
+    const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
-    const [initialLoad, setInitialLoad] = useState(true);
 
     const siteName = import.meta.env.VITE_CAC_SITE_NAME;
 
+    // Fetch PG details
+    const {
+        data: pg,
+        isLoading: isPGDetailLoading,
+        error: pgError,
+    } = useQuery({
+        queryKey: ['pgDetail', pgName, collegeName],
+        queryFn: () => fetchPGDetail({ pgName, collegeName }),
+    });
 
+    // Update metadata when pg data arrives
     useEffect(() => {
         if (!pg) return;
         setPgMetadata({
@@ -41,191 +49,129 @@ const PGDetailPage = () => {
         });
     }, [pg]);
 
-    useEffect(() => {
-        const pgListKey = `all-pgs`;
-        const pgDetailKey = `pg-${collegeName}-${pgName}`;
+    // Fetch recommendations, enabled only if pg.name exists
+    const {
+        data: similarPGs = [],
+        isLoading: similarPGsLoading,
+    } = useQuery({
+        queryKey: ['recommendations', pg?.name],
+        queryFn: () => fetchRecommendations(pg.name),
+        enabled: !!pg?.name,
+    });
 
-        setLoading(true);
+    // Categories for ratings
+    const ratingCategories = ["Room", "Food", "Cleanliness", "Safety", "Location", "Warden"];
 
-        // Use DataCache.get with backgroundRefresh and fetcher for pg list
-        const cachedPgList = DataCache.get(pgListKey, {
-            backgroundRefresh: true,
-            fetcher: () =>
-                fetch(`${apiUrl}/pgs`).then(res => res.json())
-                    .then(data => {
-                        setPgData(data);
-                        return data;
-                    })
-                    .catch(() => null)
-        });
+    // Memoize review statistics calculations
+    const reviewStats = useMemo(() => {
+        const stats = {
+            total: {},
+            count: {},
+            roomTypes: new Set(),
+            genderTypes: new Set(),
+            tags: {},
+            foodProvided: false,
+        };
 
-        // Use DataCache.get with backgroundRefresh and fetcher for pg details
-        const cachedPgDetail = DataCache.get(pgDetailKey, {
-            backgroundRefresh: true,
-            fetcher: () =>
-                fetch(`${apiUrl}/pg?name=${encodeURIComponent(pgName)}&college=${encodeURIComponent(collegeName)}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        setPg(data);
-                        return data;
-                    })
-                    .catch(() => null)
-        });
-
-        if (cachedPgList && cachedPgDetail) {
-            setPgData(cachedPgList);
-            setPg(cachedPgDetail);
-            setLoading(false);
-            setTimeout(() => setInitialLoad(false), 100);
-        } else {
-            // fallback if cache empty, fetch data normally
-            fetch(`${apiUrl}/pgs`)
-                .then(res => res.json())
-                .then(data => {
-                    setPgData(data);
-                    DataCache.set(pgListKey, data);
-                    return fetch(`${apiUrl}/pg?name=${encodeURIComponent(pgName)}&college=${encodeURIComponent(collegeName)}`);
-                })
-                .then(res => res.json())
-                .then(data => {
-                    setPg(data);
-                    DataCache.set(pgDetailKey, data);
-                })
-                .catch(err => {
-                    console.error("Failed to fetch PG details:", err);
-                })
-                .finally(() => {
-                    setLoading(false);
-                    setTimeout(() => setInitialLoad(false), 100);
-                });
-        }
-    }, [pgName, collegeName]);
-
-    useEffect(() => {
-        if (!pg || !pg.name) return;
-        setSimilarPGsLoading(true);
-        fetch(`${apiUrl}/recommend?pg=${encodeURIComponent(pg.name)}`)
-            .then(res => res.json())
-            .then(data => {
-                setSimilarPGs(Array.isArray(data) ? data : []);
-            })
-            .catch(err => {
-                console.error("Failed to fetch recommendations:", err);
-                setSimilarPGs([]);
-            })
-            .finally(() => {
-                setSimilarPGsLoading(false);
+        pg?.reviewList?.forEach(review => {
+            ratingCategories.forEach(category => {
+                const key = `rating_${category.toLowerCase()}`;
+                const val = review[key];
+                if (typeof val === "number" && val > 0) {
+                    stats.total[category] = (stats.total[category] || 0) + val;
+                    stats.count[category] = (stats.count[category] || 0) + 1;
+                }
             });
+
+            if (review.room_type) stats.roomTypes.add(review.room_type);
+            if (pg?.gender_type) stats.genderTypes.add(pg.gender_type);
+
+            (review.tags || []).forEach(tag => {
+                stats.tags[tag] = (stats.tags[tag] || 0) + 1;
+            });
+        });
+
+        stats.foodProvided = pg?.has_food === true;
+
+        return stats;
+    }, [pg, ratingCategories]);
+
+
+    // Memoize avg breakdown of ratings
+    const avgBreakdown = useMemo(() => {
+        const avg = {};
+        ratingCategories.forEach(cat => {
+            const total = reviewStats.total[cat] || 0;
+            const count = reviewStats.count[cat] || 0;
+            avg[cat] = count ? parseFloat((total / count).toFixed(1)) : "-";
+        });
+        return avg;
+    }, [reviewStats, ratingCategories]);
+
+    // Rent opinion stats and happiness level stats
+    const { rentOpinionStats, happinessLevelStats, livedHereStats } = useMemo(() => {
+        const rentStats = {};
+        const happyStats = {};
+        const livedStats = {};
+
+        pg?.reviewList?.forEach(review => {
+            if (review.rent_opinion) {
+                rentStats[review.rent_opinion] = (rentStats[review.rent_opinion] || 0) + 1;
+            }
+            if (review.happiness_level) {
+                happyStats[review.happiness_level] = (happyStats[review.happiness_level] || 0) + 1;
+            }
+            (review.class_years || []).forEach(year => {
+                livedStats[year] = (livedStats[year] || 0) + 1;
+            });
+        });
+
+        return {
+            rentOpinionStats: rentStats,
+            happinessLevelStats: happyStats,
+            livedHereStats: livedStats,
+        };
     }, [pg]);
 
-    // useEffect(() => {
-    //     if (!pg || !pg.name) return;
-
-    //     const recommendKey = `recommend-${pg.name}`;
-    //     setSimilarPGsLoading(true);
-
-    //     const cachedRecommendations = DataCache.get(recommendKey, {
-    //         backgroundRefresh: true,
-    //         fetcher: () =>
-    //             fetch(`${apiUrl}/recommend?pg=${encodeURIComponent(pg.name)}`)
-    //                 .then(res => res.json())
-    //                 .then(data => {
-    //                     const safeData = Array.isArray(data) ? data : [];
-    //                     setSimilarPGs(safeData);
-    //                     return safeData;
-    //                 })
-    //                 .catch(() => [])
-    //     });
-
-    //     if (cachedRecommendations) {
-    //         setSimilarPGs(cachedRecommendations);
-    //         setSimilarPGsLoading(false);
-    //     } else {
-    //         // fallback: fetch normally
-    //         fetch(`${apiUrl}/recommend?pg=${encodeURIComponent(pg.name)}`)
-    //             .then(res => res.json())
-    //             .then(data => {
-    //                 const safeData = Array.isArray(data) ? data : [];
-    //                 setSimilarPGs(safeData);
-    //                 DataCache.set(recommendKey, safeData);
-    //             })
-    //             .catch(err => {
-    //                 console.error("Failed to fetch recommendations:", err);
-    //                 setSimilarPGs([]);
-    //             })
-    //             .finally(() => setSimilarPGsLoading(false));
-    //     }
-    // }, [pg]);
-
-
-    if (initialLoad) return <FullPageLoader />;
-    if (!pg || pg.error) return <div>PG not found.</div>;
-
-    const rentOpinionStats = {};
-    const happinessLevelStats = {};
-
-    pg.reviewList?.forEach(review => {
-        if (review.rent_opinion) {
-            rentOpinionStats[review.rent_opinion] = (rentOpinionStats[review.rent_opinion] || 0) + 1;
-        }
-        if (review.happiness_level) {
-            happinessLevelStats[review.happiness_level] = (happinessLevelStats[review.happiness_level] || 0) + 1;
-        }
-    });
-
-    const ratingCategories = ["Room", "Food", "Cleanliness", "Safety", "Location", "Warden"];
-    const reviewStats = {
-        total: {},
-        count: {},
-        roomTypes: new Set(),
-        genderTypes: new Set(),
-        tags: {},
-        foodProvided: false,
-    };
-
-    const livedHereStats = {};
-    pg.reviewList?.forEach(review => {
-        (review.class_years || []).forEach(year => {
-            livedHereStats[year] = (livedHereStats[year] || 0) + 1;
-        });
-    });
-
-    pg.reviewList?.forEach(review => {
-        ratingCategories.forEach(category => {
-            const key = `rating_${category.toLowerCase()}`;
-            const val = review[key];
-            if (typeof val === "number" && val > 0) {
-                reviewStats.total[category] = (reviewStats.total[category] || 0) + val;
-                reviewStats.count[category] = (reviewStats.count[category] || 0) + 1;
-            }
-        });
-
-        if (review.room_type) reviewStats.roomTypes.add(review.room_type);
-        if (pg.gender_type) reviewStats.genderTypes.add(pg.gender_type);
-
-
-        (review.tags || []).forEach(tag => {
-            reviewStats.tags[tag] = (reviewStats.tags[tag] || 0) + 1;
-        });
-    });
-    reviewStats.foodProvided = pg?.has_food === true;
-
-
-    const avgBreakdown = {};
-    ratingCategories.forEach(cat => {
-        const total = reviewStats.total[cat] || 0;
-        const count = reviewStats.count[cat] || 0;
-        avgBreakdown[cat] = count ? parseFloat((total / count).toFixed(1)) : "-";
-    });
-
-    const topTags = Object.entries(reviewStats.tags)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 7)
-        .map(([tag]) => tag);
-
+    // Prepare display values
+    const topTags = useMemo(() => {
+        return Object.entries(reviewStats.tags)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 7)
+            .map(([tag]) => tag);
+    }, [reviewStats.tags]);
 
     const roomTypeDisplay = Array.from(reviewStats.roomTypes).join(", ") || "Not specified";
-    const genderDisplay = pg.gender_type || "Not specified";
+    const genderDisplay = pg?.gender_type || "Not specified";
+    const reviewImages = pg && Array.isArray(pg.reviewList)
+        ? pg.reviewList.flatMap(review =>
+            (review.images || []).map(img => ({
+                ...img,
+                reviewId: review.id,
+                reviewerName: review.name,
+            }))
+        )
+        : [];
+
+
+    const pgImages = Array.isArray(pg?.images)
+        ? pg.images.map(img => ({
+            ...img,
+            reviewerName: null
+        }))
+        : [];
+
+
+    const allGalleryImages = [...pgImages, ...reviewImages].map(img => ({
+        ...img,
+        tags: img.tags || img.imageTags || [],
+    }));
+
+
+
+    // Now conditionally render based on loading or error
+    if (isPGDetailLoading) return <FullPageLoader />;
+    if (pgError || !pg) return <div>PG not found.</div>;
 
     return (
         <div className="pg-detail-wrapper">
@@ -256,7 +202,10 @@ const PGDetailPage = () => {
                             </Link>
                         </p>
                         <p>⭐ {pg.avg_rating} ({pg.review_count} reviews)</p>
-                        <button className="see-photos">See All Photos</button>
+                        <button className="see-photos" onClick={() => setShowGallery(true)}>
+                            See All Photos
+                        </button>
+
                     </div>
                 </div>
             </div>
@@ -272,6 +221,33 @@ const PGDetailPage = () => {
                     }}>
                         ✍️ Write a Review
                     </button>
+                    {!showModal && !showLoginModal && (
+                        <button
+                            className={`floating-review-button ${(showModal || showLoginModal) ? 'hidden' : ''}`}
+                            onClick={() => {
+                                if (user) {
+                                    setShowModal(true);
+                                } else {
+                                    setShowLoginModal(true);
+                                }
+                            }}
+                        >
+                            ✍️ Write a Review
+                        </button>
+                        // <button
+                        //     className="floating-review-button"
+                        //     onClick={() => {
+                        //         if (user) {
+                        //             setShowModal(true);
+                        //         } else {
+                        //             setShowLoginModal(true);
+                        //         }
+                        //     }}
+                        // >
+                        //     <span className="pencil-icon">✍️</span>
+                        //     <span className="float-review-text">Write a Review</span>
+                        // </button>
+                    )}
                     {showLoginModal && (
                         <LoginModal siteName={siteName} onClose={() => setShowLoginModal(false)} />
                     )}
@@ -295,7 +271,8 @@ const PGDetailPage = () => {
                             ) : (
                                 similarPGs.map((pg, idx) => (
                                     <Link
-                                        key={idx}
+                                        // key={idx}
+                                        key={pg.id || pg.name}
                                         to={`/college/${encodeURIComponent(collegeName)}/pg/${encodeURIComponent(pg.name)}`}
                                         className="similar-card"
                                         style={{ textDecoration: "none", color: "inherit" }}
@@ -344,6 +321,14 @@ const PGDetailPage = () => {
             </main>
 
             <Footer />
+            {showGallery && (
+                <PhotoGalleryModal
+                    images={allGalleryImages}
+                    onClose={() => setShowGallery(false)}
+                />
+            )}
+
+
         </div>
     );
 };

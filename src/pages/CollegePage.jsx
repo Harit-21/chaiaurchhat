@@ -12,14 +12,13 @@ import { useSearchParams } from 'react-router-dom';
 import { apiUrl } from '../api';
 import { Helmet } from 'react-helmet-async';
 import FullPageLoader from '../components/FullPageLoader';
-import DataCache from '../cache/DataCache';
 import SkeletonCollegePgCard from '../components/cardloader/SkeletonCollegePgCard';
+import { useQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
 
 const CollegePage = () => {
     const { collegeName } = useParams();
 
-    const [pgList, setPgList] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [searchParams, setSearchParams] = useSearchParams();
 
     const [searchTerm, setSearchTerm] = useState(searchParams.get("q") || "");
@@ -27,11 +26,7 @@ const CollegePage = () => {
     const [sortOption, setSortOption] = useState(searchParams.get("sort") || "");
     const [genderType, setGenderType] = useState(searchParams.get("gender") || "");
     const [hasFood, setHasFood] = useState(searchParams.get("food") || "");
-    const [wishlist, setWishlist] = useState([]);
 
-    const [initialLoad, setInitialLoad] = useState(true);
-
-    const [college, setCollege] = useState(null);
     const [showAddModal, setShowAddModal] = useState(false);
     const [resetKey, setResetKey] = useState(Date.now());
 
@@ -64,146 +59,125 @@ const CollegePage = () => {
         }
     };
 
-    useEffect(() => {
-        const collegeCacheKey = `college-${collegeName}`;
-        const cachedCollege = DataCache.get(collegeCacheKey, {
-            backgroundRefresh: true,
-            fetcher: () =>
-                fetch(`${apiUrl}/college/${encodeURIComponent(collegeName)}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        setCollege(data);
-                        return data;
-                    })
-                    .catch(err => {
-                        console.error("Error fetching college:", err);
-                        return null;
-                    })
-        });
-
-        if (cachedCollege) {
-            setCollege(cachedCollege);
-        } else {
-            // fallback in case cache and background fail
-            fetch(`${apiUrl}/college/${encodeURIComponent(collegeName)}`)
-                .then(res => res.json())
-                .then(data => {
-                    setCollege(data);
-                    DataCache.set(collegeCacheKey, data);
-                })
-                .catch(err => {
-                    console.error("Failed to fetch college:", err);
-                });
+    const {
+        data: college,
+        isLoading: loadingCollege,
+        error: collegeError,
+    } = useQuery({
+        queryKey: ['college', collegeName],
+        queryFn: async () => {
+            const res = await fetch(`${apiUrl}/college/${encodeURIComponent(collegeName)}`);
+            if (!res.ok) throw new Error('Failed to fetch college');
+            return res.json();
         }
-    }, [collegeName]);
+    });
 
 
 
     // === API call to your Flask backend ===
-    useEffect(() => {
-        if (!college?.id) return;
-
-        const pgListKey = `pgs-for-${collegeName}`;
-        const cachedPgList = DataCache.get(pgListKey, {
-            backgroundRefresh: true,
-            fetcher: () =>
-                fetch(`${apiUrl}/pgs?college_id=${encodeURIComponent(college.id)}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        const pgArray = Array.isArray(data) ? data : [];
-                        setPgList(pgArray);
-                        return pgArray;
-                    })
-        });
-
-        if (cachedPgList) {
-            setPgList(cachedPgList);
-            setLoading(false);
-            setTimeout(() => setInitialLoad(false), 100);
-        } else {
-            // fallback in case fetcher fails completely
-            setLoading(true);
-            fetch(`${apiUrl}/pgs?college_id=${encodeURIComponent(college.id)}`)
-                .then(res => res.json())
-                .then(data => {
-                    const pgArray = Array.isArray(data) ? data : [];
-                    setPgList(pgArray);
-                    DataCache.set(pgListKey, pgArray);
-                })
-                .catch(error => {
-                    console.error("❌ Error fetching PGs:", error);
-                    setPgList([]);
-                })
-                .finally(() => {
-                    setLoading(false);
-                    setTimeout(() => setInitialLoad(false), 100);
-                });
+    const {
+        data: pgList = [],
+        isLoading: loadingPGs,
+        error: pgError,
+    } = useQuery({
+        queryKey: ['pgs', college?.id],
+        enabled: !!college?.id,
+        queryFn: async () => {
+            const res = await fetch(`${apiUrl}/pgs?college_id=${encodeURIComponent(college.id)}`);
+            if (!res.ok) throw new Error('Failed to fetch PGs');
+            return res.json();
         }
-    }, [college]);
+    });
+
 
 
     // === Filtering & Sorting ===
-    const filteredPGs = pgList
-        .filter(pg =>
-            pg.name?.toLowerCase().includes(debouncedSearch.toLowerCase())
-            // || pg.gender_type?.toLowerCase().includes(debouncedSearch.toLowerCase())
-        )
-        .filter(pg => (pg.avg_rating || 0) >= minRating)
-        .filter(pg => genderType === "" || pg.gender_type === genderType)
-        .filter(pg => hasFood === "" || pg.has_food === (hasFood === "true"))
-        .sort((a, b) => {
-            switch (sortOption) {
-                case 'mostReviews':
-                    return (b.review_count || 0) - (a.review_count || 0);
-                case 'highestRating':
-                    return (b.avg_rating || 0) - (a.avg_rating || 0);
-                default:
-                    return 0;
-            }
-        });
 
+    const filteredPGs = useMemo(() => {
+        return pgList
+            .filter(pg =>
+                pg.name?.toLowerCase().includes(debouncedSearch.toLowerCase())
+            )
+            .filter(pg => (pg.avg_rating || 0) >= minRating)
+            .filter(pg => genderType === "" || pg.gender_type === genderType)
+            .filter(pg => hasFood === "" || pg.has_food === (hasFood === "true"))
+            .sort((a, b) => {
+                switch (sortOption) {
+                    case 'mostReviews':
+                        return (b.review_count || 0) - (a.review_count || 0);
+                    case 'highestRating':
+                        return (b.avg_rating || 0) - (a.avg_rating || 0);
+                    default:
+                        return 0;
+                }
+            });
+    }, [pgList, debouncedSearch, minRating, genderType, hasFood, sortOption]);
 
     useEffect(() => {
-        const params = {};
+        const newParams = {};
+        if (debouncedSearch) newParams.q = debouncedSearch;
+        if (minRating) newParams.rating = minRating;
+        if (sortOption) newParams.sort = sortOption;
+        if (genderType) newParams.gender = genderType;
+        if (hasFood) newParams.food = hasFood;
 
-        if (debouncedSearch) params.q = debouncedSearch;
-        if (minRating) params.rating = minRating;
-        if (sortOption) params.sort = sortOption;
-        if (genderType) params.gender = genderType;
-        if (hasFood) params.food = hasFood;
+        const currentParams = Object.fromEntries(searchParams.entries());
 
-        setSearchParams(params, { replace: true });
+        if (JSON.stringify(currentParams) !== JSON.stringify(newParams)) {
+            setSearchParams(newParams, { replace: true });
+        }
     }, [debouncedSearch, minRating, sortOption, genderType, hasFood]);
 
+
     // Fetch wishlist on load
-    useEffect(() => {
-        if (!user) return;
+    const {
+        data: wishlist = [],
+        isLoading: loadingWishlist,
+    } = useQuery({
+        queryKey: ['wishlist', user?.email],
+        enabled: !!user?.email,
+        queryFn: async () => {
+            const res = await fetch(`${apiUrl}/wishlist?email=${encodeURIComponent(user.email)}`);
+            if (!res.ok) throw new Error('Failed to fetch wishlist');
+            return res.json();
+        }
+    });
+    const wishlistIds = wishlist.map(item => item.pg_id);
 
-        fetch(`${apiUrl}/wishlist?email=${user.email}`)
-            .then(res => res.json())
-            .then(data => {
-                const wishlistPGIds = data.map(item => item.pg_id);
-                setWishlist(wishlistPGIds);
-            })
-            .catch(err => {
-                console.error("Failed to fetch wishlist", err);
-                setWishlist([]); // fallback to empty array
-            });
-    }, [user]);
-
+    // useQuery({
+    //     queryKey: ['college', collegeName],
+    //     queryFn: async () => {
+    //         const res = await fetch(`${apiUrl}/college/${encodeURIComponent(collegeName)}`);
+    //         if (!res.ok) throw new Error('Failed to fetch college');
+    //         return res.json();
+    //     },
+    //     staleTime: 5 * 60 * 1000, // 5 minutes
+    // })
 
     const totalReviews = filteredPGs.reduce((sum, pg) => sum + (pg.review_count || 0), 0);
     const totalPGs = filteredPGs.length;
     const backgroundImage = college?.image?.trim() || "https://images.unsplash.com/20/cambridge.JPG";
 
-    if (initialLoad) return <FullPageLoader />;
+    if (loadingCollege) return <FullPageLoader />;
 
+    if (collegeError || pgError) {
+        return (
+            <div className="error-state">
+                <Header />
+                <p>Error loading page: {collegeError?.message || pgError?.message}</p>
+                <Footer />
+            </div>
+        );
+    }
 
     return (
         <div className="college-page-wrapper">
             <Helmet>
                 <title>{college.short_name} | {siteName}</title>
-                <meta name="description" content="Find honest PG & hostel reviews by students. Explore trending PGs near institutions with real ratings and feedback." />
+                <meta
+                    name="description"
+                    content={`Explore ${totalPGs} PGs near ${college?.short_name || collegeName} with ${totalReviews} student reviews.`}
+                />
             </Helmet>
             <Header />
 
@@ -238,31 +212,32 @@ const CollegePage = () => {
                         setGenderType={setGenderType}
                         hasFood={hasFood}
                         setHasFood={setHasFood}
-                        disabled={loading}
+                        disabled={loadingPGs}
                     />
 
                     <div className="pg-list">
-                        {(loading || wishlist === null)
-                            ? Array.from({ length: 4 }).map((_, idx) => (
+                        {(loadingPGs || loadingWishlist) ? (
+                            Array.from({ length: 3 }).map((_, idx) => (
                                 <SkeletonCollegePgCard key={idx} />
                             ))
-                            : filteredPGs.length > 0
-                                ? filteredPGs.map((pg, idx) => (
-                                    <CollegePgCard
-                                        key={pg.id || idx}
-                                        id={pg.id}
-                                        name={pg.name}
-                                        gender_type={pg.gender_type || null}
-                                        rating={pg.avg_rating || 0}
-                                        reviews={pg.review_count || 0}
-                                        image={pg.image}
-                                        user={user}
-                                        isWishlisted={wishlist.includes(pg.id)}
-                                        onLoginRequired={() => setShowLoginModal(true)}
-                                    />
-                                ))
-                                : <p>No PGs. Try adjusting your criteria or <span id='addpg' onClick={handleAddHostelClick}>Add One</span>.</p>
-                        }
+                        ) : filteredPGs.length > 0 ? (
+                            filteredPGs.map((pg, idx) => (
+                                <CollegePgCard
+                                    key={pg.id || idx}
+                                    id={pg.id}
+                                    name={pg.name}
+                                    gender_type={pg.gender_type || null}
+                                    rating={pg.avg_rating || 0}
+                                    reviews={pg.review_count || 0}
+                                    image={pg.image}
+                                    user={user}
+                                    isWishlisted={wishlistIds.includes(pg.id)}
+                                    onLoginRequired={() => setShowLoginModal(true)}
+                                />
+                            ))
+                        ) : (
+                            <p>No PGs match your search or filters. Try adjusting your criteria or <span id='addpg' onClick={handleAddHostelClick}>Add One</span>.</p>
+                        )}
                     </div>
                 </section>
 
@@ -289,12 +264,13 @@ const CollegePage = () => {
                 <AddHostelModal
                     key={resetKey} // forces full remount
                     onClose={(submitted = false) => {
+                        setShowAddModal(false);
+
                         if (submitted) {
-                            // Reopen modal with fresh state
-                            setResetKey(Date.now());
-                            setTimeout(() => setShowAddModal(true), 100); // defer re-opening
-                        } else {
-                            setShowAddModal(false);
+                            setTimeout(() => {
+                                setResetKey(Date.now());
+                                setShowAddModal(true);
+                            }, 110);
                         }
                     }}
                     defaultCollegeId={college.id}

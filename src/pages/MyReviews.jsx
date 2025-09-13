@@ -8,92 +8,73 @@ import FancyReviewForm from '../components/FancyReviewForm';
 import ReviewModal from '../components/ReviewModal';
 import { apiUrl } from '../api.js';
 import FullPageLoader from '../components/FullPageLoader.jsx';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { fetchUserReviews, fetchWishlist } from '../api/MyReviewQueries.js';
+
 
 
 const MyReviews = () => {
-    const { user } = useAuth();
-    const [myReviews, setMyReviews] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const { user, loading } = useAuth();
+    // const [myReviews, setMyReviews] = useState([]);
+    // const [loading, setLoading] = useState(true);
     const [sortKey, setSortKey] = useState("date");
     const [editingReview, setEditingReview] = useState(null);
     const [editFormStep, setEditFormStep] = useState(1);
-    const [wishlist, setWishlist] = useState([]);
+    // const [wishlist, setWishlist] = useState([]);
+    const queryClient = useQueryClient();
 
-    const sortedReviews = [...myReviews].sort((a, b) => {
+    const {
+        data: myReviews = [],
+        isLoading: loadingReviews,
+        error: reviewsError,
+    } = useQuery({
+        queryKey: ['userReviews', user?.email],
+        queryFn: () => fetchUserReviews(user.email),
+        enabled: !!user?.email, // Only fetch when user is available
+    });
+
+    const {
+        data: wishlist = [],
+        isLoading: loadingWishlist,
+        error: wishlistError,
+    } = useQuery({
+        queryKey: ['wishlist', user?.email],
+        queryFn: () => fetchWishlist(user.email),
+        enabled: !!user?.email,
+    });
+
+    const sortedReviews = [...(myReviews || [])].sort((a, b) => {
         if (sortKey === "date") return new Date(b.date) - new Date(a.date);
         if (sortKey === "rating") return b.rating - a.rating;
         return 0;
     });
 
     const handleUpdate = (id, updatedFields) => {
-        setMyReviews((prev) =>
-            prev.map((r) => (r.id === id ? { ...r, ...updatedFields } : r))
+        queryClient.setQueryData(['userReviews', user.email], (oldData) =>
+            oldData.map((r) => (r.id === id ? { ...r, ...updatedFields } : r))
         );
     };
 
-    const handleDelete = (id) => {
+    const handleDelete = async (id) => {
         const confirmed = window.confirm("Are you sure you want to delete this review?");
         if (!confirmed) return;
 
-        fetch(`${apiUrl}/reviews/${id}`, {
-            method: 'DELETE'
-        })
-            .then(res => {
-                if (!res.ok) throw new Error("Delete failed");
-                setMyReviews(prev => prev.filter(r => r.id !== id));
-            })
-            .catch(err => {
-                console.error("Failed to delete review:", err);
-                alert("Something went wrong.");
+        try {
+            const res = await fetch(`${apiUrl}/reviews/${id}`, {
+                method: 'DELETE',
             });
+
+            if (!res.ok) throw new Error("Delete failed");
+
+            // Re-fetch reviews after delete
+            queryClient.setQueryData(['userReviews', user.email], (oldData) =>
+                oldData?.filter((r) => r.id !== id)
+            );
+        } catch (err) {
+            console.error("Failed to delete review:", err);
+            alert("Something went wrong.");
+        }
     };
-
-    const fetchWishlist = () => {
-        if (!user) return;
-        fetch(`${apiUrl}/wishlist?email=${encodeURIComponent(user.email)}`)
-            .then(res => res.json())
-            .then(data => {
-                if (Array.isArray(data)) {
-                    setWishlist(data);
-                }
-            })
-            .catch(err => console.error("Failed to fetch wishlist", err));
-    };
-
-    useEffect(() => {
-        if (!user) return;
-
-        fetch(`${apiUrl}/user-reviews?email=${encodeURIComponent(user.email)}`)
-            .then(res => res.json())
-            .then(data => {
-                const reviewsArray = Array.isArray(data)
-                    ? data
-                    : Array.isArray(data.reviews)
-                        ? data.reviews
-                        : Array.isArray(data.data)
-                            ? data.data
-                            : [];
-
-                // Ensure has_food is always included (fallback to true)
-                const reviewsWithFood = reviewsArray.map(r => ({
-                    ...r,
-                    has_food: r.has_food === true
-                }));
-
-                setMyReviews(reviewsWithFood);
-                setLoading(false);
-            })
-
-            .catch(err => {
-                console.error("Failed to fetch user reviews:", err);
-                setLoading(false);
-            });
-    }, [user]);
-
-    useEffect(() => {
-        fetchWishlist();
-    }, [user]);
-
 
     // live update on every render (less efficient, more real-time):
     // useEffect(() => {
@@ -104,10 +85,18 @@ const MyReviews = () => {
     //     return () => clearInterval(interval);
     // }, []);
 
-    
-        if (loading) {
-            return <FullPageLoader isHome={false} />;
-        }
+    if (reviewsError) {
+        return <div>Error loading your reviews: {reviewsError.message}</div>;
+    }
+
+    if (wishlistError) {
+        return <div>Error loading your wishlist: {wishlistError.message}</div>;
+    }
+
+
+    if (loading || loadingReviews || loadingWishlist) {
+        return <FullPageLoader isHome={false} />;
+    }
 
     if (!user) {
         return (
@@ -216,6 +205,12 @@ const MyReviews = () => {
                                     </div>
                                 </div>
 
+                                {review.images && review.images.length > 0 && (
+                                    <p className="image-info-edit">
+                                        📸 {review.images.length} image{review.images.length > 1 ? 's' : ''} uploaded
+                                    </p>
+                                )}
+
                                 <p className="review-date">
                                     🗓️ {new Date(review.date).toLocaleDateString()} | Room: {review.room_type}
                                     {review.verified && <span className="verified-badge">✔️ Verified</span>}
@@ -241,10 +236,10 @@ const MyReviews = () => {
                                 <Link
                                     to={`/college/${pg.location}/pg/${encodeURIComponent(pg.name)}`}
                                     className="wishlist-item"
-                                    key={index}
+                                    key={pg.id || index}
                                 >
                                     <div className="wishlist-card">
-                                        <img src={pg.image} alt={pg.name} />
+                                        <img src={pg.image} alt={`${pg.name} image`} />
                                         <div>
                                             <h4>{pg.name}</h4>
                                             <p>{pg.collegeName}</p>

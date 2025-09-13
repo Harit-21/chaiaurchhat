@@ -101,7 +101,7 @@ textarea:focus {
     outline: none;
 }
 
-.reviewcomment-textarea{
+.reviewcomment-textarea {
     background-color: var(--shadow);
     padding: 1rem;
     color: var(--text-primary);
@@ -208,10 +208,11 @@ button:disabled {
 }
 
 .photo-drop {
-    background: #f4f4f4;
+    background: var(--suits-reversed);
+    color: var(--text-primary);
     padding: 1rem;
     width: 13rem;
-    border: 2px dashed #bbb;
+    border: 2px dashed var(--yellow-500);
     border-radius: 10px;
     text-align: center;
     font-weight: 500;
@@ -225,9 +226,17 @@ button:disabled {
     color: var(--text-primary);
 }
 
-.photo-drop .loader, .submit-button .loader{
-    width: 15px;
-    height: 15px;
+.photo-drop.disabled {
+    opacity: 0.6;
+    background-color: #777;
+    border: none;
+    cursor: not-allowed;
+}
+
+.photo-drop .loader,
+.submit-button .loader {
+    width: 17px;
+    height: 17px;
 }
 
 .photo-preview {
@@ -238,7 +247,7 @@ button:disabled {
 }
 
 .photo-card {
-    background: white;
+    background: var(--pg-card);
     border: 1px solid #ccc;
     padding: 0.5rem;
     border-radius: 8px;
@@ -262,6 +271,8 @@ button:disabled {
 
 .photo-card input[type="text"] {
     width: 100%;
+    background-color: var(--suits-reversed);
+    color: var(--text-primary);
     padding: 0.3rem;
     font-size: 0.8rem;
     margin-top: 0.4rem;
@@ -271,6 +282,63 @@ button:disabled {
 
 .photo-card input:focus {
     outline-color: var(--primary);
+}
+
+.image-tags {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.image-tag {
+    padding: 4px 8px;
+    background: var(--suits-reversed);
+    color: var(--text-primary);
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.image-tag:hover{
+    background: var(--light);
+}
+
+.image-tag.selected {
+    background: var(--primary);
+    color: var(--suits-reversed);
+}
+
+.remove-image {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: var(--suits-reversed);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 2px 6px;
+    color: var(--text-primary);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+
+}
+
+.remove-image:hover {
+    background-color: var(--text-primary);
+    color: var(--suits-reversed);
+}
+
+.remove-image[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.photo-card img.deleting {
+    filter: grayscale(1) brightness(0.8);
+    opacity: 0.5;
+    transition: opacity 0.3s ease, filter 0.3s ease;
 }
 
 .error-message {
@@ -347,7 +415,7 @@ button:disabled {
     border-color: var(--primary);
 }
 
-.category-rating h3{
+.category-rating h3 {
     color: var(--text-primary);
 }
 
@@ -373,7 +441,7 @@ button:disabled {
     color: var(--text-primary);
 }
 
-#summaryreview-star{
+#summaryreview-star {
     font-size: 0.85rem;
 }
 
@@ -445,18 +513,4 @@ button:disabled {
     margin-top: 1rem;
     color: var(--suits-reversed);
     padding: 0.2rem 0.5rem;
-}
-
-.remove-image {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    background: rgba(255, 255, 255, 0.9);
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 0.8rem;
-    padding: 2px 6px;
-    color: #333;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }

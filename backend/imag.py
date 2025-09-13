@@ -77,37 +77,68 @@ def imagekit_delete():
 
 @app.route('/imagekit-batch-delete', methods=['POST'])
 def imagekit_batch_delete():
-    data = request.json
-    file_ids = data.get("fileIds")
+    try:
+        data = request.json
+        file_ids = data.get("fileIds")
 
-    if not file_ids or not isinstance(file_ids, list):
-        return jsonify({"success": False, "error": "Missing or invalid fileIds"}), 400
+        if not file_ids or not isinstance(file_ids, list):
+            return jsonify({"success": False, "error": "Missing or invalid fileIds"}), 400
 
-    auth_header = base64.b64encode(f"{PRIVATE_API_KEY}:".encode()).decode()
+        auth_header = base64.b64encode(f"{PRIVATE_API_KEY}:".encode()).decode()
 
-    deleted = []
-    failed = []
+        deleted = []
+        failed = []
 
-    for file_id in file_ids:
-        delete_url = f"https://api.imagekit.io/v1/files/{file_id}"
-        delete_response = requests.delete(delete_url, headers={
-            "Authorization": f"Basic {auth_header}"
-        })
+        for file_id in file_ids:
+            try:
+                delete_url = f"https://api.imagekit.io/v1/files/{file_id}"
+                delete_response = requests.delete(delete_url, headers={
+                    "Authorization": f"Basic {auth_header}"
+                })
 
-        if delete_response.status_code == 204:
-            deleted.append(file_id)
-        else:
-            failed.append({
-                "fileId": file_id,
-                "status": delete_response.status_code,
-                "error": delete_response.text
+                if delete_response.status_code == 204:
+                    deleted.append(file_id)
+                else:
+                    failed.append({
+                        "fileId": file_id,
+                        "status": delete_response.status_code,
+                        "error": delete_response.text
+                    })
+            except Exception as e:
+                failed.append({
+                    "fileId": file_id,
+                    "error": str(e)
+                })
+
+        # Respond with appropriate status
+        if len(failed) == 0:
+            return jsonify({
+                "success": True,
+                "deleted": deleted,
+                "failed": []
             })
+        elif len(deleted) == 0:
+            return jsonify({
+                "success": False,
+                "error": "All deletions failed.",
+                "deleted": [],
+                "failed": failed
+            }), 500
+        else:
+            return jsonify({
+                "success": False,
+                "partial": True,
+                "message": "Some files failed to delete.",
+                "deleted": deleted,
+                "failed": failed
+            }), 207  # 207: Multi-Status
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": "Server error",
+            "details": str(e)
+        }), 500
 
-    return jsonify({
-        "success": True,
-        "deleted": deleted,
-        "failed": failed
-    })
 
 if __name__ == '__main__':
     app.run(port=5000)

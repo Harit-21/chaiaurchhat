@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { apiUrl } from '../api';
@@ -8,6 +8,10 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false }) => {
     const [disabledButtons, setDisabledButtons] = useState(new Set());
     const [reviewHelpfulCounts, setReviewHelpfulCounts] = useState({});
     const [expandedComments, setExpandedComments] = useState({});
+    const commentRef = useRef(null);
+    const [isLongComment, setIsLongComment] = useState({});
+    const MAX_LINES_BEFORE_COLLAPSE = 4;
+    const MAX_CHARS_BEFORE_COLLAPSE = 300;
 
     // Modal related states
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,6 +29,24 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false }) => {
 
         const clicked = JSON.parse(localStorage.getItem('helpfulClicked') || '[]');
         setDisabledButtons(new Set(clicked));
+    }, [reviews]);
+
+    useLayoutEffect(() => {
+        const updated = {};
+        reviews.forEach((review) => {
+            const el = document.getElementById(`comment-${review.id}`);
+            if (el) {
+                const rawLineHeight = getComputedStyle(el).lineHeight;
+                const lineHeight = parseFloat(rawLineHeight) || 20;
+                const lines = el.clientHeight / lineHeight;
+
+                const isLongByLines = lines > MAX_LINES_BEFORE_COLLAPSE;
+                const isLongByChars = review.comment.length > MAX_CHARS_BEFORE_COLLAPSE;
+
+                updated[review.id] = isLongByLines || isLongByChars;
+            }
+        });
+        setIsLongComment(updated);
     }, [reviews]);
 
     // Helpful click handler (unchanged)
@@ -186,14 +208,42 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false }) => {
 
                         {/* Comment */}
                         <div className="review-text">
-                            {isExpanded || comment.length <= 300
-                                ? comment
-                                : comment.slice(0, 300) + '... '}
-                            {comment.length > 300 && (
+                            <div
+                                id={`comment-${review.id}`}
+                                style={{
+                                    maxHeight: !isExpanded && isLongComment[review.id]
+                                        ? `${MAX_LINES_BEFORE_COLLAPSE * 1.35}em`
+                                        : 'none',
+                                    overflow: 'hidden',
+                                }}
+                            >
+                                {(() => {
+                                    if (isExpanded || !isLongComment[review.id]) {
+                                        return comment.split('\n').map((line, index) => (
+                                            <React.Fragment key={index} >
+                                                {line}
+                                                <br />
+                                            </React.Fragment>
+                                        ));
+                                    } else if (comment.length > MAX_CHARS_BEFORE_COLLAPSE) {
+                                        // Truncate comment by char limit, preserving line breaks is tricky, so just slice string
+                                        const truncated = comment.slice(0, MAX_CHARS_BEFORE_COLLAPSE) + '...';
+                                        return truncated;
+                                    } else {
+                                        return comment.split('\n').map((line, index) => (
+                                            <React.Fragment key={index} >
+                                                {line}
+                                                <br />
+                                            </React.Fragment>
+                                        ));
+                                    }
+                                })()}
+
+                            </div>
+                            {isLongComment[review.id] && (
                                 <span
                                     className="read-more-toggle"
                                     onClick={() => toggleComment(review.id)}
-                                    style={{ cursor: 'pointer', color: 'blue' }}
                                 >
                                     {isExpanded ? ' Show less' : 'Read more'}
                                 </span>
@@ -217,11 +267,11 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false }) => {
                         {/* Images */}
                         {review.images?.length > 0 && (
                             <div className="review-images">
-                                {review.images.map((img, i) => (
+                                {review.images.map((imgObj, i) => (
                                     <img
                                         key={i}
-                                        src={img}
-                                        alt={`Review ${i}`}
+                                        src={imgObj.url}
+                                        alt={imgObj.caption || `Review ${i + 1}`}
                                         onClick={() => openModal(review.images, i)}
                                         style={{ cursor: 'pointer' }}
                                     />
@@ -261,12 +311,14 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false }) => {
                         </button>
                         <div className="image-n-desc">
                             <img
-                                src={modalImages[modalImageIndex]}
-                                alt="Full view"
+                                src={modalImages[modalImageIndex]?.url}
+                                alt={modalImages[modalImageIndex]?.caption || 'Review image'}
                                 draggable={false}
                             />
                             <div className="image-caption">
-                                {`Pic ${modalImageIndex + 1} of ${modalImages.length}`}
+                                {modalImages[modalImageIndex]?.caption
+                                    ? modalImages[modalImageIndex].caption
+                                    : `Pic ${modalImageIndex + 1} of ${modalImages.length}`}
                             </div>
                         </div>
                         {modalImages.length > 1 && (

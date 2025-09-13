@@ -483,7 +483,7 @@ const AddHostelModal = ({ onClose, defaultCollegeId = null }) => {
     return (
         <div className="ahm-modal-overlay">
             <div className="ahm-add-hostel-card-container">
-                <button className="ahm-close-btn" onClick={onClose}>×</button>
+                <button className="ahm-close-btn" onClick={() => onClose(false)}>×</button>
                 <h2>🏠 Add a New Hostel</h2>
                 <p className="ahm-subtext">Help the community by listing a new PG or hostel</p>
 

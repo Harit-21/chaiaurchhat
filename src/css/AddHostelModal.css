@@ -424,6 +424,6 @@
 
     .ahm-review-step {
         overflow-y: scroll;
-        max-height: 24.5rem;
+        max-height: 24rem;
     }
 }
