@@ -1,12 +1,16 @@
-# React + Vite
+~CHAIAURCHHAT~
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Brief Description - A must and most helpful platform for students in india who wants the best HOSTEL or PG i.e. CHHAT to stay at without the hustle of visiting and calling the owners to get to know about that particular stay.
 
-Currently, two official plugins are available:
+Bugs Resolving:-
+Review like after only login and one per user.
+Searching shows no results for a bit, it shouldn't.
+My review page designing.
+Float review button enhancement.
+Optimizing recommendation modal.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Should we or should we not:-
+the date of review added in "09-10-2025" or "October 2025" format.
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Big Updates:-
+Adding the Good Food places (Dhabas, Cafe, Restro, etc.) too near the hostels or PGs, which can too be rated accordingly by college students and non-college students BECAUSE RIGHT & BEST FOOD is non negotiable when not at home.
