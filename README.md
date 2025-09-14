@@ -1,4 +1,4 @@
-~CHAIAURCHHAT~
+~ CHAIAURCHHAT ~
 
 Brief Description - A must and most helpful platform for students in india who wants the best HOSTEL or PG i.e. CHHAT to stay at without the hustle of visiting and calling the owners to get to know about that particular stay.
 
