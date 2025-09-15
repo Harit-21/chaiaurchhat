@@ -10,6 +10,7 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false, user, setShowLoginMo
     const [reviewHelpfulCounts, setReviewHelpfulCounts] = useState({});
     const [expandedComments, setExpandedComments] = useState({});
     const commentRef = useRef(null);
+    const [clickedHelpfulReviews, setClickedHelpfulReviews] = useState(new Set());
     const [isLongComment, setIsLongComment] = useState({});
     const MAX_LINES_BEFORE_COLLAPSE = 4;
     const MAX_CHARS_BEFORE_COLLAPSE = 300;
@@ -39,8 +40,8 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false, user, setShowLoginMo
         });
         setReviewHelpfulCounts(counts);
 
-        const clicked = JSON.parse(localStorage.getItem('helpfulClicked') || '[]');
-        setDisabledButtons(new Set(clicked));
+        const clicked = JSON.parse(localStorage.getItem('clickedHelpfulReviews') || '[]');
+        setClickedHelpfulReviews(new Set(clicked));
     }, [reviews]);
 
     useLayoutEffect(() => {
@@ -62,62 +63,42 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false, user, setShowLoginMo
     }, [reviews]);
 
     // Helpful click handler (unchanged)
-    const handleHelpfulClick = (reviewId) => {
+    const handleHelpfulClick = async (reviewId) => {
         if (!user) {
-            toast.info("Please sign in to mark helpful!");
-            setShowLoginModal?.(true);
+            setShowLoginModal(true);
             return;
         }
 
-        if (disabledButtons.has(reviewId)) return; // prevent spamming
+        const hasVoted = clickedHelpfulReviews.has(reviewId);
 
-        const wasHelpful = disabledButtons.has(reviewId); // correct position
-
-        const clickedSet = new Set(disabledButtons);
-        clickedSet.add(reviewId); // now update
-        setDisabledButtons(clickedSet);
-
-        fetch(`${apiUrl}/review/helpful`, {
+        const res = await fetch(`${apiUrl}/review/helpful`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 review_id: reviewId,
-                undo: wasHelpful,
-                user_email: user.email, // include email for backend
+                user_email: user.email,
             }),
-            credentials: 'include',
-        })
-            .then(res => {
-                if (!res.ok) throw new Error("Failed");
-                return res.json();
-            })
-            .then(() => {
-                toast.success(wasHelpful ? "Feedback removed!" : "Thanks for the feedback!");
+        });
 
-                setReviewHelpfulCounts(prev => ({
-                    ...prev,
-                    [reviewId]: (prev[reviewId] || 0) + (wasHelpful ? -1 : 1),
-                }));
+        if (!res.ok) throw new Error('Request failed');
+        const data = await res.json();
 
-                const updated = new Set(disabledButtons);
-                wasHelpful ? updated.delete(reviewId) : updated.add(reviewId);
-                setDisabledButtons(updated);
-                localStorage.setItem('helpfulClicked', JSON.stringify([...updated]));
-            })
-            .catch((err) => {
-                toast.error("Something went wrong");
-                console.error("Error toggling helpful:", err);
-            })
-            .finally(() => {
-                // Re-enable button after short delay
-                setTimeout(() => {
-                    const updated = new Set(disabledButtons);
-                    updated.delete(reviewId);
-                    setDisabledButtons(updated);
-                }, 1500); // 1.5s cooldown
-            });
+        // Update state with new count from server
+        setReviewHelpfulCounts(prev => ({
+            ...prev,
+            [reviewId]: data.helpful_count,
+        }));
+
+        // Toggle local “has voted” state
+        setClickedHelpfulReviews(prev => {
+            const updated = new Set(prev);
+            if (hasVoted) updated.delete(reviewId);
+            else updated.add(reviewId);
+            localStorage.setItem('clickedHelpfulReviews', JSON.stringify(Array.from(updated)));
+            return updated;
+        });
     };
-
+    const isActive = clickedHelpfulReviews.has(review.id);
 
     const toggleComment = (id) => {
         setExpandedComments(prev => ({
@@ -332,7 +313,7 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false, user, setShowLoginMo
                             {!isMyReviewsPage && (
                                 <button
                                     onClick={() => handleHelpfulClick(review.id)}
-                                    className={`helpful-button ${isDisabled ? 'active' : ''}`}
+                                    className={`helpful-button ${isActive ? 'active' : ''}`}
                                 >
                                     <span id="helpful">🫱🏻‍🫲🏼</span> {reviewHelpfulCounts[review.id] || 0}
                                 </button>

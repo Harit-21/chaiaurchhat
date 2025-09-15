@@ -272,48 +272,21 @@ def mark_review_helpful():
     data = request.get_json()
     review_id = data.get("review_id")
     user_email = data.get("user_email")
-    undo = data.get("undo", False)
 
     if not review_id or not user_email:
-        return jsonify({"error": "Missing review_id or user_email"}), 400
+        return jsonify({"error": "review_id and user_email required"}), 400
 
-    check_url = f"{SUPABASE_URL}/rest/v1/review_helpfuls?review_id=eq.{review_id}&user_email=eq.{user_email}"
-    check_res = requests.get(check_url, headers=HEADERS)
-    already_marked = check_res.ok and check_res.json()
+    # Call the RPC function
+    resp = requests.post(
+        f"{SUPABASE_URL}/rest/v1/rpc/toggle_helpful_vote",
+        headers=HEADERS,
+        json={"p_review_id": review_id, "p_user_email": user_email},
+    )
+    if not resp.ok:
+        return jsonify({"error": "toggle_helpful_vote failed", "details": resp.text}), 500
 
-    if undo:
-        if already_marked:
-            # Delete the mark
-            del_res = requests.delete(check_url, headers=HEADERS)
-            if del_res.ok:
-                # Get current helpful_count
-                review_resp = requests.get(f"{SUPABASE_URL}/rest/v1/reviews?id=eq.{review_id}", headers=HEADERS)
-                if review_resp.ok:
-                    current = review_resp.json()[0].get("helpful_count", 0)
-                    new_count = max(current - 1, 0)
-
-                    patch_url = f"{SUPABASE_URL}/rest/v1/reviews?id=eq.{review_id}"
-                    patch_res = requests.patch(patch_url, headers=HEADERS, json={"helpful_count": new_count})
-                    return jsonify({"message": "Undo successful"}) if patch_res.ok else jsonify({"error": "Failed to update count"}), 500
-        return jsonify({"message": "Nothing to undo"}), 200
-    else:
-        if not already_marked:
-            insert_res = requests.post(
-                f"{SUPABASE_URL}/rest/v1/review_helpfuls",
-                headers=HEADERS,
-                json={"review_id": review_id, "user_email": user_email}
-            )
-            if insert_res.ok:
-                # Get current helpful_count
-                review_resp = requests.get(f"{SUPABASE_URL}/rest/v1/reviews?id=eq.{review_id}", headers=HEADERS)
-                if review_resp.ok:
-                    current = review_resp.json()[0].get("helpful_count", 0)
-                    new_count = current + 1
-
-                    patch_url = f"{SUPABASE_URL}/rest/v1/reviews?id=eq.{review_id}"
-                    patch_res = requests.patch(patch_url, headers=HEADERS, json={"helpful_count": new_count})
-                    return jsonify({"message": "Marked as helpful"}) if patch_res.ok else jsonify({"error": "Failed to update count"}), 500
-        return jsonify({"message": "Already marked as helpful"}), 200
+    new_count = resp.json()  # returns integer helpful_count
+    return jsonify({"review_id": review_id, "helpful_count": new_count})
 
 
 
