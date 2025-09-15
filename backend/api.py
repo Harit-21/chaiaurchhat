@@ -580,6 +580,5 @@ def remove_from_wishlist():
         return jsonify({"error": "Failed to remove from wishlist"}), 500
 
 
-
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
