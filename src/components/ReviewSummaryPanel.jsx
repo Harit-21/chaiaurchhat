@@ -2,6 +2,7 @@ import React from 'react';
 import '../css/PGDetailPage.css';
 import ReviewSummarizerAI from '../components/ReviewSummarizerAI';
 import StarRating from './PGDetailPage/StarRating';
+import { mapRentOpinionToSymbol, mapHappinessLevelToEmoji } from './PGDetailPage/ReviewIndicators';
 
 const ReviewSummaryPanel = ({ summary, breakdown, livedHereStats, tags, reviewList, rentOpinionStats, happinessLevelStats }) => {
 
@@ -17,38 +18,6 @@ const ReviewSummaryPanel = ({ summary, breakdown, livedHereStats, tags, reviewLi
         }
         return topOption;
     }
-
-    function mapRentOpinionToSymbol(opinion) {
-        switch (opinion?.toLowerCase()) {
-            case 'low':
-                return '₹';
-            case 'reasonable':
-            case 'medium':
-                return '₹₹';
-            case 'high':
-            case 'expensive':
-                return '₹₹₹';
-            default:
-                return 'no data';
-        }
-    }
-
-    function mapHappinessLevelToEmoji(level) {
-        switch (level?.toLowerCase()) {
-            case 'yes':
-            case 'satisfied':
-                return '😊';
-            case 'just fine':
-            case 'okay':
-                return '😐';
-            case 'no':
-            case 'dissatisfied':
-                return '😞';
-            default:
-                return '¯\\_(ツ)_/¯';
-        }
-    }
-
 
     const topRentOpinion = getMostFrequentOption(rentOpinionStats);
     const topHappinessLevel = getMostFrequentOption(happinessLevelStats);
@@ -98,8 +67,8 @@ const ReviewSummaryPanel = ({ summary, breakdown, livedHereStats, tags, reviewLi
 
                 <div className="additional-summary">
                     <h4></h4>
-                    <p><span className='emo-indicators'><strong>💰Rent:</strong> <span rentindicate={topRentOpinion} id='rent-indicate'>{mapRentOpinionToSymbol(topRentOpinion)}</span></span></p>
-                    <p><span className='emo-indicators'><strong>😁Are Residents Happy:</strong> <span id='hp-indicate' hpindicate={topHappinessLevel}> {mapHappinessLevelToEmoji(topHappinessLevel)}</span></span></p>
+                    <p><span className='emo-indicators'><strong>💸 Rent:</strong> <span rentindicate={topRentOpinion} id='rent-indicate'>{mapRentOpinionToSymbol(topRentOpinion)}</span></span></p>
+                    <p><span className='emo-indicators'><strong>😊 Are Residents Happy:</strong> <span id='hp-indicate' hpindicate={topHappinessLevel}> {mapHappinessLevelToEmoji(topHappinessLevel)}</span></span></p>
                 </div>
 
 

@@ -259,7 +259,10 @@ const PGDetailPage = () => {
                             user={user}
                         />
                     )}
-                    <StudentReviews reviews={pg.reviewList} />
+                    <StudentReviews
+                        reviews={pg.reviewList}
+                        user={user}
+                        setShowLoginModal={setShowLoginModal} />
 
                     <section className="pg-similar">
                         <h2>🎴If you liked this one,<br></br> you'll like those too.</h2>

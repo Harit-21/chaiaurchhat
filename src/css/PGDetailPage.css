@@ -342,26 +342,26 @@ h4 {
   margin: 5px 0;
 }
 
-.additional-summary #rent-indicate,
-.additional-summary #hp-indicate {
+#rent-indicate,
+#hp-indicate {
   display: inline-block;
   transition: transform 0.2s ease;
   font-weight: 350;
 }
 
-.additional-summary #rent-indicate:hover,
-.additional-summary #hp-indicate:hover,
-.additional-summary .emo-indicators:hover #hp-indicate,
-.additional-summary .emo-indicators:hover #rent-indicate {
+#rent-indicate:hover,
+#hp-indicate:hover,
+.emo-indicators:hover #hp-indicate,
+.emo-indicators:hover #rent-indicate {
   transform: scale(1.19);
   font-weight: 350;
   cursor: default;
 }
 
-.additional-summary #hp-indicate:hover::after,
-.additional-summary #rent-indicate:hover::after,
-.additional-summary .emo-indicators:hover #hp-indicate::after,
-.additional-summary .emo-indicators:hover #rent-indicate::after {
+#hp-indicate:hover::after,
+#rent-indicate:hover::after,
+.emo-indicators:hover #hp-indicate::after,
+.emo-indicators:hover #rent-indicate::after {
   position: absolute;
   background-color: #333;
   color: #fff;
@@ -373,15 +373,15 @@ h4 {
   opacity: 0.8;
 }
 
-.additional-summary #rent-indicate:hover::after,
-.additional-summary .emo-indicators:hover #rent-indicate::after {
+#rent-indicate:hover::after,
+.emo-indicators:hover #rent-indicate::after {
   top: 2px;
-  left: 30px;
+  left: 27px;
   content: attr(rentindicate);
 }
 
-.additional-summary #hp-indicate:hover::after,
-.additional-summary .emo-indicators:hover #hp-indicate::after {
+#hp-indicate:hover::after,
+.emo-indicators:hover #hp-indicate::after {
   top: 2px;
   left: 22px;
   content: attr(hpindicate);
@@ -482,24 +482,34 @@ h4 {
   gap: 0.5rem;
 }
 
-.review-info {
-  display: flex;
-}
-
-.verified {
+.review-header .verified {
   font-size: 0.9rem;
-  color: green;
+  color: yellowgreen;
   margin: 6px 0;
   cursor: help;
-  /* border-bottom: 1px dotted green; */
+  border-bottom: 1px dotted green;
 }
 
-.verified:hover::after {
+.verified-hat {
+  border-bottom: none;
+  /* background-color: #fff; */
+  border-radius: 1rem;
+  font-size: 0.97rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
+
+.review-header .verified:hover .verified-hat {
+  transform: rotate(-30deg);
+}
+
+.review-header .verified:hover::after {
   content: attr(Verifiedhat);
   position: absolute;
   background-color: #333;
   color: #fff;
-  top: 0;
+  top: -7px;
   left: 125px;
   font-size: 12px;
   padding: 4px 10px;
@@ -509,8 +519,9 @@ h4 {
   opacity: 0.8;
 }
 
-.review-info strong {
+.review-info .name {
   font-size: 1.1rem;
+  font-weight: 650;
   color: var(--suits);
   margin-right: 10px;
 }
@@ -598,7 +609,7 @@ h4 {
 .date-line {
   text-decoration: underline;
   color: var(--text-secondary);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
 }
 
 /* Helpful Buttons */
@@ -762,6 +773,10 @@ h4 {
   .review-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .date-line {
+    font-size: 0.75rem
   }
 }
 

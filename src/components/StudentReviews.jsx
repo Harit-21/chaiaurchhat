@@ -3,8 +3,9 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { apiUrl } from '../api';
 import '../css/PGDetail/StudentReviews.css';
+import { mapRentOpinionToSymbol, mapHappinessLevelToEmoji } from './PGDetailPage/ReviewIndicators';
 
-const StudentReviews = ({ reviews, isMyReviewsPage = false }) => {
+const StudentReviews = ({ reviews, isMyReviewsPage = false, user, setShowLoginModal }) => {
     const [disabledButtons, setDisabledButtons] = useState(new Set());
     const [reviewHelpfulCounts, setReviewHelpfulCounts] = useState({});
     const [expandedComments, setExpandedComments] = useState({});
@@ -12,6 +13,17 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false }) => {
     const [isLongComment, setIsLongComment] = useState({});
     const MAX_LINES_BEFORE_COLLAPSE = 4;
     const MAX_CHARS_BEFORE_COLLAPSE = 300;
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const options = { year: 'numeric', month: 'short' }; // E.g. "September 2025"
+        return date.toLocaleDateString(undefined, options); // Uses user's locale
+    };
+    // Sep 2025	{ year: 'numeric', month: 'short' }
+    // September 2025 { year: 'numeric', month: 'long' }
+    // Sep 12, 2025	{ year: 'numeric', month: 'short', day: 'numeric' }
+    // 12 September 2025	{ year: 'numeric', month: 'long', day: 'numeric' }
+
 
     // Modal related states
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -51,37 +63,61 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false }) => {
 
     // Helpful click handler (unchanged)
     const handleHelpfulClick = (reviewId) => {
+        if (!user) {
+            toast.info("Please sign in to mark helpful!");
+            setShowLoginModal?.(true);
+            return;
+        }
+
+        if (disabledButtons.has(reviewId)) return; // prevent spamming
+
         const clickedSet = new Set(disabledButtons);
+        clickedSet.add(reviewId); // disable the button
+        setDisabledButtons(clickedSet);
+
         const wasHelpful = clickedSet.has(reviewId);
 
         fetch(`${apiUrl}/review/helpful`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ review_id: reviewId, undo: wasHelpful }),
+            body: JSON.stringify({
+                review_id: reviewId,
+                undo: wasHelpful,
+                user_email: user.email, // include email for backend
+            }),
+            credentials: 'include',
         })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error("Failed");
+                return res.json();
+            })
             .then(() => {
                 toast.success(wasHelpful ? "Feedback removed!" : "Thanks for the feedback!");
-                setReviewHelpfulCounts((prev) => ({
+
+                setReviewHelpfulCounts(prev => ({
                     ...prev,
                     [reviewId]: (prev[reviewId] || 0) + (wasHelpful ? -1 : 1),
                 }));
 
                 const updated = new Set(disabledButtons);
-                if (wasHelpful) {
-                    updated.delete(reviewId);
-                } else {
-                    updated.add(reviewId);
-                }
-
+                wasHelpful ? updated.delete(reviewId) : updated.add(reviewId);
                 setDisabledButtons(updated);
                 localStorage.setItem('helpfulClicked', JSON.stringify([...updated]));
             })
             .catch((err) => {
                 toast.error("Something went wrong");
                 console.error("Error toggling helpful:", err);
+            })
+            .finally(() => {
+                // Re-enable button after short delay
+                setTimeout(() => {
+                    const updated = new Set(disabledButtons);
+                    updated.delete(reviewId);
+                    setDisabledButtons(updated);
+                }, 1500); // 1.5s cooldown
             });
     };
+
 
     const toggleComment = (id) => {
         setExpandedComments(prev => ({
@@ -194,10 +230,10 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false }) => {
                         {/* Header */}
                         <div className="review-header">
                             <div className="review-info">
-                                <strong>{review.name}</strong>
+                                <span className='name'>{review.name}</span>
                                 {review.verified && (
                                     <span className="verified" verifiedhat="Verified stay">
-                                        🎓 Verified
+                                        <span className='verified-hat'>🎓</span> Verified
                                     </span>
                                 )}
                             </div>
@@ -253,13 +289,25 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false }) => {
                         {/* Extra feedback */}
                         <div className="review-extras">
                             {review.happiness_level && (
-                                <div className="extra-line">
-                                    😊 <strong>Happiness:</strong> {review.happiness_level}
+                                <div className="extra-line emo-indicators">
+                                    <strong>Happiness:</strong>{' '}
+                                    <span
+                                        id="hp-indicate"
+                                        hpindicate={review.happiness_level}
+                                    >
+                                        {mapHappinessLevelToEmoji(review.happiness_level)}
+                                    </span>
                                 </div>
                             )}
                             {review.rent_opinion && (
-                                <div className="extra-line">
-                                    💸 <strong>Rent:</strong> {review.rent_opinion}
+                                <div className="extra-line emo-indicators">
+                                    <strong>Rent:</strong>{' '}
+                                    <span
+                                        id="rent-indicate"
+                                        rentindicate={review.rent_opinion}
+                                    >
+                                        {mapRentOpinionToSymbol(review.rent_opinion)}
+                                    </span>
                                 </div>
                             )}
                         </div>
@@ -289,7 +337,7 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false }) => {
                                     <span id="helpful">🫱🏻‍🫲🏼</span> {reviewHelpfulCounts[review.id] || 0}
                                 </button>
                             )}
-                            <span className="date-line">{review.date}</span>
+                            <span className="date-line">{formatDate(review.date)}</span>
                             <span className="room-type" rooms="Room type">{review.room_type}</span>
                         </div>
                     </div>

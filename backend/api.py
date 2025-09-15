@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()  # Load from .env file
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"], origins=["http://localhost:5173", "https://chaiaurchhat.vercel.app"])
+CORS(app, supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"], origins=["https://chaiaurchhat.vercel.app"])
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_API_KEY = os.getenv("SUPABASE_API_KEY")
@@ -271,30 +271,50 @@ def recommend():
 def mark_review_helpful():
     data = request.get_json()
     review_id = data.get("review_id")
+    user_email = data.get("user_email")
     undo = data.get("undo", False)
 
-    if not review_id:
-        return jsonify({"error": "Missing review_id"}), 400
+    if not review_id or not user_email:
+        return jsonify({"error": "Missing review_id or user_email"}), 400
 
-    url = f"{SUPABASE_URL}/rest/v1/reviews?id=eq.{review_id}"
+    check_url = f"{SUPABASE_URL}/rest/v1/review_helpfuls?review_id=eq.{review_id}&user_email=eq.{user_email}"
+    check_res = requests.get(check_url, headers=HEADERS)
+    already_marked = check_res.ok and check_res.json()
 
-    get_res = requests.get(url, headers=HEADERS)
-    if not get_res.ok or not get_res.json():
-        return jsonify({"error": "Review not found"}), 404
+    if undo:
+        if already_marked:
+            # Delete the mark
+            del_res = requests.delete(check_url, headers=HEADERS)
+            if del_res.ok:
+                # Get current helpful_count
+                review_resp = requests.get(f"{SUPABASE_URL}/rest/v1/reviews?id=eq.{review_id}", headers=HEADERS)
+                if review_resp.ok:
+                    current = review_resp.json()[0].get("helpful_count", 0)
+                    new_count = max(current - 1, 0)
 
-    current = get_res.json()[0]
-    current_count = current.get("helpful_count", 0)
-    new_count = max(0, current_count - 1 if undo else current_count + 1)
+                    patch_url = f"{SUPABASE_URL}/rest/v1/reviews?id=eq.{review_id}"
+                    patch_res = requests.patch(patch_url, headers=HEADERS, json={"helpful_count": new_count})
+                    return jsonify({"message": "Undo successful"}) if patch_res.ok else jsonify({"error": "Failed to update count"}), 500
+        return jsonify({"message": "Nothing to undo"}), 200
+    else:
+        if not already_marked:
+            insert_res = requests.post(
+                f"{SUPABASE_URL}/rest/v1/review_helpfuls",
+                headers=HEADERS,
+                json={"review_id": review_id, "user_email": user_email}
+            )
+            if insert_res.ok:
+                # Get current helpful_count
+                review_resp = requests.get(f"{SUPABASE_URL}/rest/v1/reviews?id=eq.{review_id}", headers=HEADERS)
+                if review_resp.ok:
+                    current = review_resp.json()[0].get("helpful_count", 0)
+                    new_count = current + 1
 
-    patch = requests.patch(
-        url,
-        headers=HEADERS,
-        json={"helpful_count": new_count}
-    )
+                    patch_url = f"{SUPABASE_URL}/rest/v1/reviews?id=eq.{review_id}"
+                    patch_res = requests.patch(patch_url, headers=HEADERS, json={"helpful_count": new_count})
+                    return jsonify({"message": "Marked as helpful"}) if patch_res.ok else jsonify({"error": "Failed to update count"}), 500
+        return jsonify({"message": "Already marked as helpful"}), 200
 
-    if patch.status_code == 204:
-        return jsonify({"message": "Helpful count updated."})
-    return jsonify({"error": "Failed to update"}), patch.status_code
 
 
 @app.route("/user-reviews", methods=["GET"])
