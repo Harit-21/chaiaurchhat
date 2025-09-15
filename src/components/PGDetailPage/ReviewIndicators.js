@@ -1,4 +1,3 @@
-// src/utils/reviewIndicators.js
 export function mapRentOpinionToSymbol(opinion) {
     switch (opinion?.toLowerCase()) {
         case 'low':
