@@ -71,11 +71,11 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false, user, setShowLoginMo
 
         if (disabledButtons.has(reviewId)) return; // prevent spamming
 
-        const clickedSet = new Set(disabledButtons);
-        clickedSet.add(reviewId); // disable the button
-        setDisabledButtons(clickedSet);
+        const wasHelpful = disabledButtons.has(reviewId); // correct position
 
-        const wasHelpful = clickedSet.has(reviewId);
+        const clickedSet = new Set(disabledButtons);
+        clickedSet.add(reviewId); // now update
+        setDisabledButtons(clickedSet);
 
         fetch(`${apiUrl}/review/helpful`, {
             method: 'POST',
