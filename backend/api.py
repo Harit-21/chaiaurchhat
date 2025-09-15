@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()  # Load from .env file
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"], origins=["https://chaiaurchhat.vercel.app"])
+CORS(app, supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"], origins=["http://localhost:5173", "https://chaiaurchhat.vercel.app"])
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_API_KEY = os.getenv("SUPABASE_API_KEY")
