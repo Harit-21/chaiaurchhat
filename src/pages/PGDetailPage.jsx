@@ -219,7 +219,7 @@ const PGDetailPage = () => {
                             setShowLoginModal(true);
                         }
                     }}>
-                        ✍️ Write a Review
+                        ✍🏻 Write a Review
                     </button>
                     {!showModal && !showLoginModal && (
                         <button
@@ -232,7 +232,7 @@ const PGDetailPage = () => {
                                 }
                             }}
                         >
-                            ✍️ Write a Review
+                            ✍🏻 Write a Review
                         </button>
                         // <button
                         //     className="floating-review-button"

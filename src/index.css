@@ -25,7 +25,6 @@
   --primary: #ff4d4d;
   /* Slightly softer and fresher red */
   --primary-light: #ff4d4d;
-  --reviewcard: #ff77771d;
   --light: #ff7f7f2d;
   --hamlight: #ff989886;
 
@@ -70,8 +69,9 @@
 
 
   /* PG Page */
-  --similar-pg: #212121;
+  --reviewcard: #ff777721;
   --reviewform-bg: white;
+  --similar-pg: #212121;
 
 
   /* Text colors */
@@ -90,7 +90,6 @@
   --light: #6aebff2c;
   --hamlight: #63eaff9e;
 
-  --reviewcard: rgba(255, 255, 255, 0.134);
   /* Accent shifts to a softer yellow-orange */
   --accent: #fbbf24;
   /* warm yellow for emphasis */
@@ -127,8 +126,9 @@
   --pg-card: rgba(255, 255, 255, 0.1);
 
   /* PG Page */
-  --similar-pg: #efefef35;
+  --reviewcard: rgba(255, 255, 255, 0.112);
   --reviewform-bg: #2a2a2a4e;
+  --similar-pg: #efefef35;
 
   /* Text colors: light for dark mode */
   --suits: #fff;

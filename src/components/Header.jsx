@@ -129,7 +129,7 @@ const Header = ({ onReviewClick }) => {
                                 }
                             }}
                         >
-                            ✍️ Write a Review
+                            ✍🏻 Write a Review
                         </button>
                     )}
                     <div className="toggle-wrapper" onClick={toggleDarkMode} title="Toggle Dark Mode">

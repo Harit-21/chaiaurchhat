@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect, useMemo } from 'react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { apiUrl } from '../api';
@@ -6,25 +6,23 @@ import '../css/PGDetail/StudentReviews.css';
 import { mapRentOpinionToSymbol, mapHappinessLevelToEmoji } from './PGDetailPage/ReviewIndicators';
 
 const StudentReviews = ({ reviews, isMyReviewsPage = false, user, setShowLoginModal }) => {
-    const [disabledButtons, setDisabledButtons] = useState(new Set());
     const [reviewHelpfulCounts, setReviewHelpfulCounts] = useState({});
     const [expandedComments, setExpandedComments] = useState({});
     const commentRef = useRef(null);
     const [clickedHelpfulReviews, setClickedHelpfulReviews] = useState(new Set());
+    const [loadingHelpful, setLoadingHelpful] = useState(new Set());
     const [isLongComment, setIsLongComment] = useState({});
     const MAX_LINES_BEFORE_COLLAPSE = 4;
     const MAX_CHARS_BEFORE_COLLAPSE = 300;
+    const [filterVerified, setFilterVerified] = useState(false);
+    const [filterWithPhotos, setFilterWithPhotos] = useState(false);
+    const [sortBy, setSortBy] = useState("newest");
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
-        const options = { year: 'numeric', month: 'short' }; // E.g. "September 2025"
-        return date.toLocaleDateString(undefined, options); // Uses user's locale
+        const options = { year: 'numeric', month: 'short' };
+        return date.toLocaleDateString(undefined, options);
     };
-    // Sep 2025	{ year: 'numeric', month: 'short' }
-    // September 2025 { year: 'numeric', month: 'long' }
-    // Sep 12, 2025	{ year: 'numeric', month: 'short', day: 'numeric' }
-    // 12 September 2025	{ year: 'numeric', month: 'long', day: 'numeric' }
-
 
     // Modal related states
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -32,6 +30,39 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false, user, setShowLoginMo
     const [modalImages, setModalImages] = useState([]);
 
     const tiltRef = useRef(null);
+
+    const sortedReviews = useMemo(() => {
+        if (!reviews) return [];
+        let arr = [...reviews];
+
+        // Apply filters
+        if (filterVerified) arr = arr.filter(r => r.verified);
+        if (filterWithPhotos) arr = arr.filter(r => r.images?.length > 0);
+
+        // Sorting
+        switch (sortBy) {
+            case "newest":
+                return arr;
+            case "oldest":
+                return arr.slice().reverse();
+            case "highestRating":
+                return arr.slice().sort((a, b) => (b.rating || 0) - (a.rating || 0));
+            case "lowestRating":
+                return arr.slice().sort((a, b) => (a.rating || 0) - (b.rating || 0));
+            case "mostHelpful":
+                return arr.slice().sort((a, b) => (b.helpful_count || 0) - (a.helpful_count || 0));
+            default:
+                return arr;
+        }
+    }, [reviews, sortBy, filterVerified, filterWithPhotos]);
+
+    const getRatingColor = (rating) => {
+        if (!rating) return '#fff';
+        if (rating >= 4.5) return 'var(--reviewcard)';
+        if (rating >= 3.5) return 'var(--primary)';
+        return 'var(--reviewcard)';
+    };
+
 
     useEffect(() => {
         const counts = {};
@@ -62,43 +93,60 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false, user, setShowLoginMo
         setIsLongComment(updated);
     }, [reviews]);
 
-    // Helpful click handler (unchanged)
+    // Helpful click handler
     const handleHelpfulClick = async (reviewId) => {
         if (!user) {
             setShowLoginModal(true);
             return;
         }
 
+        if (loadingHelpful.has(reviewId)) return;
+        setLoadingHelpful(prev => new Set(prev).add(reviewId));
+
         const hasVoted = clickedHelpfulReviews.has(reviewId);
 
-        const res = await fetch(`${apiUrl}/review/helpful`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                review_id: reviewId,
-                user_email: user.email,
-            }),
-        });
+        try {
+            const res = await fetch(`${apiUrl}/review/helpful`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    review_id: reviewId,
+                    user_email: user.email,
+                }),
+            });
 
-        if (!res.ok) throw new Error('Request failed');
-        const data = await res.json();
+            if (!res.ok) throw new Error('Request failed');
+            const data = await res.json();
 
-        // Update state with new count from server
-        setReviewHelpfulCounts(prev => ({
-            ...prev,
-            [reviewId]: data.helpful_count,
-        }));
+            setReviewHelpfulCounts(prev => ({
+                ...prev,
+                [reviewId]: data.helpful_count,
+            }));
 
-        // Toggle local “has voted” state
-        setClickedHelpfulReviews(prev => {
-            const updated = new Set(prev);
-            if (hasVoted) updated.delete(reviewId);
-            else updated.add(reviewId);
-            localStorage.setItem('clickedHelpfulReviews', JSON.stringify(Array.from(updated)));
-            return updated;
-        });
+            if (hasVoted) {
+                toast.info('Removed your helpful vote 👎');
+            } else {
+                toast.success('Marked as helpful 👍');
+            }
+
+            setClickedHelpfulReviews(prev => {
+                const updated = new Set(prev);
+                if (hasVoted) updated.delete(reviewId);
+                else updated.add(reviewId);
+                localStorage.setItem('clickedHelpfulReviews', JSON.stringify(Array.from(updated)));
+                return updated;
+            });
+        } catch (err) {
+            console.error(err);
+            toast.error('Something went wrong');
+        } finally {
+            setLoadingHelpful(prev => {
+                const updated = new Set(prev);
+                updated.delete(reviewId);
+                return updated;
+            });
+        }
     };
-    const isActive = clickedHelpfulReviews.has(review.id);
 
     const toggleComment = (id) => {
         setExpandedComments(prev => ({
@@ -107,14 +155,12 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false, user, setShowLoginMo
         }));
     };
 
-    // Open modal and set images + index
     const openModal = (images, index) => {
         setModalImages(images);
         setModalImageIndex(index);
         setIsModalOpen(true);
     };
 
-    // Close modal and reset tilt
     const closeModal = () => {
         setIsModalOpen(false);
         if (tiltRef.current) {
@@ -122,14 +168,11 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false, user, setShowLoginMo
         }
     };
 
-    // Keyboard navigation in modal
     useEffect(() => {
         if (!isModalOpen) return;
 
         const handleKeyDown = (e) => {
-            if (e.key === 'Escape') {
-                closeModal();
-            }
+            if (e.key === 'Escape') closeModal();
             if (e.key === 'ArrowRight') {
                 setModalImageIndex((prev) => (prev + 1) % modalImages.length);
             }
@@ -142,32 +185,29 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false, user, setShowLoginMo
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [isModalOpen, modalImages.length]);
 
-    // Tilt effect on mouse move
     const handleMouseMove = (e) => {
         if (!tiltRef.current) return;
         const rect = tiltRef.current.getBoundingClientRect();
-        const x = e.clientX - rect.left; // X relative to image container
+        const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 
-        const rotateX = ((y / rect.height) - 0.5) * -30; // range -15 to 15 degrees approx
+        const rotateX = ((y / rect.height) - 0.5) * -30;
         const rotateY = ((x / rect.width) - 0.5) * 30;
 
         tiltRef.current.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
     };
 
-    // Reset tilt when mouse leaves
     const handleMouseLeave = () => {
         if (tiltRef.current) {
             tiltRef.current.style.transform = 'rotateX(0deg) rotateY(0deg)';
         }
     };
 
-    // Device orientation tilt support (for mobile)
     useEffect(() => {
         if (!isModalOpen) return;
 
         const handleOrientation = (event) => {
-            const { beta, gamma } = event; // beta: front-back tilt, gamma: left-right
+            const { beta, gamma } = event;
             if (tiltRef.current) {
                 const rotateX = Math.min(Math.max(beta - 45, -15), 15) / 3;
                 const rotateY = Math.min(Math.max(gamma, -15), 15) / 3;
@@ -200,15 +240,98 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false, user, setShowLoginMo
 
     return (
         <section className="pg-reviews">
-            <h2>💬Student Reviews</h2>
-            {reviews.map((review) => {
+            <div className="review-filters-container">
+
+                <div className="filter-buttons">
+                    <button
+                        className={filterVerified ? 'active' : ''}
+                        onClick={() => setFilterVerified(prev => !prev)}
+                    >
+                        🎓 Verified
+                    </button>
+
+                    <button
+                        className={filterWithPhotos ? 'active' : ''}
+                        onClick={() => setFilterWithPhotos(prev => !prev)}
+                    >
+                        📸 With Photos
+                    </button>
+                </div>
+
+                <div className="sort-buttons">
+                    <button
+                        className={sortBy === 'mostHelpful' ? 'active' : ''}
+                        onClick={() => setSortBy('mostHelpful')}
+                    >
+                       👍🏻 Most Helpful
+                    </button>
+                    <button
+                        className={sortBy === 'newest' ? 'active' : ''}
+                        onClick={() => setSortBy('newest')}
+                    >
+                        Latest
+                    </button>
+                    <button
+                        className={sortBy === 'oldest' ? 'active' : ''}
+                        onClick={() => setSortBy('oldest')}
+                    >
+                        ⏳Oldest
+                    </button>
+                    <button
+                        className={sortBy === 'highestRating' ? 'active' : ''}
+                        onClick={() => setSortBy('highestRating')}
+                    >
+                        ⭐ Top Rated
+                    </button>
+                    <button
+                        className={sortBy === 'lowestRating' ? 'active' : ''}
+                        onClick={() => setSortBy('lowestRating')}
+                    >
+                        🔻Lowest Rated
+                    </button>
+                </div>
+
+                <button className="reset-filters" onClick={() => {
+                    setFilterVerified(false);
+                    setFilterWithPhotos(false);
+                    setSortBy('newest');
+                }}>
+                    Reset
+                </button>
+            </div>
+
+
+            {/* <div className="active-filters-tags">
+                {sortBy && (
+                    <span className="filter-tag" onClick={() => setSortBy('newest')}>
+                        {sortBy === 'newest' && "Newest First 🆕"}
+                        {sortBy === 'oldest' && "Oldest First ⏳"}
+                        {sortBy === 'highestRating' && "Highest Rating ⭐"}
+                        {sortBy === 'lowestRating' && "Lowest Rating 🔻"}
+                        <span className="remove-tag" onClick={(e) => { e.stopPropagation(); setSortBy('newest'); }}>×</span>
+                    </span>
+                )}
+                {filterVerified && (
+                    <span className="filter-tag" onClick={() => setFilterVerified(false)}>
+                        Verified 🎓 <span className="remove-tag">×</span>
+                    </span>
+                )}
+                {filterWithPhotos && (
+                    <span className="filter-tag" onClick={() => setFilterWithPhotos(false)}>
+                        With Photos 📸 <span className="remove-tag">×</span>
+                    </span>
+                )}
+            </div> */}
+
+
+            <h2>📜Student Reviews</h2>
+            {sortedReviews.map((review) => {
                 const isExpanded = expandedComments[review.id] || false;
-                const isDisabled = disabledButtons.has(review.id);
                 const comment = review.comment;
+                const isActive = clickedHelpfulReviews.has(review.id);
 
                 return (
-                    <div className="review-card" key={review.id}>
-                        {/* Header */}
+                    <div className="review-card" key={review.id} style={{ border: `0px solid ${getRatingColor(review.rating)}` }}>
                         <div className="review-header">
                             <div className="review-info">
                                 <span className='name'>{review.name}</span>
@@ -223,14 +346,13 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false, user, setShowLoginMo
                             </div>
                         </div>
 
-                        {/* Comment */}
                         <div className="review-text">
                             <div
                                 id={`comment-${review.id}`}
                                 style={{
                                     maxHeight: !isExpanded && isLongComment[review.id]
                                         ? `${MAX_LINES_BEFORE_COLLAPSE * 1.35}em`
-                                        : 'none',
+                                        : '1000px',
                                     overflow: 'hidden',
                                 }}
                             >
@@ -243,7 +365,6 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false, user, setShowLoginMo
                                             </React.Fragment>
                                         ));
                                     } else if (comment.length > MAX_CHARS_BEFORE_COLLAPSE) {
-                                        // Truncate comment by char limit, preserving line breaks is tricky, so just slice string
                                         const truncated = comment.slice(0, MAX_CHARS_BEFORE_COLLAPSE) + '...';
                                         return truncated;
                                     } else {
@@ -255,7 +376,6 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false, user, setShowLoginMo
                                         ));
                                     }
                                 })()}
-
                             </div>
                             {isLongComment[review.id] && (
                                 <span
@@ -267,15 +387,11 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false, user, setShowLoginMo
                             )}
                         </div>
 
-                        {/* Extra feedback */}
                         <div className="review-extras">
                             {review.happiness_level && (
                                 <div className="extra-line emo-indicators">
                                     <strong>Happiness:</strong>{' '}
-                                    <span
-                                        id="hp-indicate"
-                                        hpindicate={review.happiness_level}
-                                    >
+                                    <span id="hp-indicate" hpindicate={review.happiness_level}>
                                         {mapHappinessLevelToEmoji(review.happiness_level)}
                                     </span>
                                 </div>
@@ -283,17 +399,13 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false, user, setShowLoginMo
                             {review.rent_opinion && (
                                 <div className="extra-line emo-indicators">
                                     <strong>Rent:</strong>{' '}
-                                    <span
-                                        id="rent-indicate"
-                                        rentindicate={review.rent_opinion}
-                                    >
+                                    <span id="rent-indicate" rentindicate={review.rent_opinion}>
                                         {mapRentOpinionToSymbol(review.rent_opinion)}
                                     </span>
                                 </div>
                             )}
                         </div>
 
-                        {/* Images */}
                         {review.images?.length > 0 && (
                             <div className="review-images">
                                 {review.images.map((imgObj, i) => (
@@ -308,15 +420,17 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false, user, setShowLoginMo
                             </div>
                         )}
 
-                        {/* Reactions */}
                         <div className="reactions">
                             {!isMyReviewsPage && (
                                 <button
                                     onClick={() => handleHelpfulClick(review.id)}
                                     className={`helpful-button ${isActive ? 'active' : ''}`}
+                                    disabled={loadingHelpful.has(review.id)}
                                 >
-                                    <span id="helpful">🫱🏻‍🫲🏼</span> {reviewHelpfulCounts[review.id] || 0}
+                                    <span id="helpful">🫱🏻‍🫲🏼</span>{' '}
+                                    {reviewHelpfulCounts[review.id] || 0}
                                 </button>
+
                             )}
                             <span className="date-line">{formatDate(review.date)}</span>
                             <span className="room-type" rooms="Room type">{review.room_type}</span>
@@ -325,7 +439,6 @@ const StudentReviews = ({ reviews, isMyReviewsPage = false, user, setShowLoginMo
                 );
             })}
 
-            {/* Modal */}
             {isModalOpen && (
                 <div className="hostel-image-overlay" onClick={closeModal}>
                     <div
