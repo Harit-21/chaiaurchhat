@@ -10,7 +10,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 // Constants
 const ratingLabels = { 1: 'Poor', 2: 'Okay', 3: 'Good', 4: 'Very Good', 5: 'Excellent' };
 const emojiRating = { 1: '😐', 2: '😌', 3: '😃', 4: '😍', 5: '🤩' };
-const imageTagOptions = ['Bed', 'Desk', 'Bathroom', 'Kitchen', 'Food', 'Balcony', 'Room View', 'Common Area'];
+const imageTagOptions = ['Bed', 'Desk', 'Bathroom', 'Kitchen', 'Food', 'Balcony', 'Room', 'Hostel', 'Mess'];
 const tagOptions = ['Clean', 'Affordable', 'Wifi', 'Safe', 'Peaceful', 'Friendly Staff', 'Spacious', 'Good Food'];
 const MIN_COMMENT_LENGTH = 11;
 const MAX_COMMENT_LENGTH = 1100;
@@ -186,7 +186,7 @@ const FancyReviewForm = ({ pgName, onClose, step, setStep, pgMetadata, existingR
     let error = '';
 
     try {
-      const res = await axios.get('http://chaiaurchhat.vercel.app/imagekit-auth');
+      const res = await axios.get('http://localhost:5000/imagekit-auth');
       const auth = res.data;
 
       for (let file of files) {
@@ -242,7 +242,7 @@ const FancyReviewForm = ({ pgName, onClose, step, setStep, pgMetadata, existingR
     if (!imageToRemove.existing) {
       setDeletingFileIds(prev => new Set(prev).add(fileIdToRemove));
       try {
-        await axios.post('http://chaiaurchhat.vercel.app/imagekit-delete', { fileId: imageToRemove.fileId, url: imageToRemove.url });
+        await axios.post('http://localhost:5000/imagekit-delete', { fileId: imageToRemove.fileId, url: imageToRemove.url });
         toast.success("Image removed.");
       } catch (err) {
         console.error("Failed to delete image from ImageKit:", err);
@@ -323,7 +323,7 @@ const FancyReviewForm = ({ pgName, onClose, step, setStep, pgMetadata, existingR
     setLoading(true);
     try {
       if (imagesToDelete.length > 0) {
-        await axios.post('http://chaiaurchhat.vercel.app/imagekit-batch-delete', { fileIds: imagesToDelete });
+        await axios.post('http://localhost:5000/imagekit-batch-delete', { fileIds: imagesToDelete });
         localStorage.removeItem('pendingImageDeletions');
         setImagesToDelete([]);
       }

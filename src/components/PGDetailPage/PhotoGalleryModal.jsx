@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import '../../css/PGDetail/PhotoGalleryModal.css';
 // You can use the same CSS from the wallpapers project
 
-const FILTER_TAGS = ['Bed', 'Desk', 'Bathroom', 'Kitchen', 'Food', 'Balcony', 'Room View', 'Common Area'];
+const FILTER_TAGS = ['Bed', 'Desk', 'Bathroom', 'Kitchen', 'Food', 'Balcony', 'Room', 'Hostel', 'Mess'];
 
 const PhotoGalleryModal = ({ images, onClose }) => {
   const [activeFilter, setActiveFilter] = useState('');
@@ -38,7 +38,7 @@ const PhotoGalleryModal = ({ images, onClose }) => {
     <div className="photo-gallery-overlay" onClick={handleOverlayClick}>
       <div className="photo-gallery-modal">
         <div className="gallery-header">
-          <div className="filter-buttons">
+          <div className="pgm-filter-buttons">
             {FILTER_TAGS.map((tag) => (
               <button
                 key={tag}

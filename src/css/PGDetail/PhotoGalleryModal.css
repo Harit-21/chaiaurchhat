@@ -45,14 +45,15 @@
   margin-bottom: 0.65rem;
 }
 
-.filter-buttons {
+.photo-gallery-modal .pgm-filter-buttons {
   display: flex;
   gap: 0.5rem;
-  flex-wrap: wrap;
+  padding: 0px 0;
+  overflow-x: scroll;
 }
 
-.filter-btn {
-  padding: 0.1rem 1rem;
+.photo-gallery-modal .filter-btn {
+  padding: 0.1rem 0.65rem;
   background: var(--suits-reversed);
   color: var(--text-primary);
   border: 1px dashed var(--text-primary);
