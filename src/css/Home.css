@@ -518,7 +518,7 @@ button.hamburger.open {
   transition: all ease-in-out 0.2s;
 }
 
-.info-section:hover{
+.info-section:hover {
   transform: scale(1.045);
   box-shadow: 2px 10px 30px var(--footer-shadow);
 }
@@ -721,6 +721,11 @@ button.hamburger.open {
 
 /* Responsive */
 @media (max-width: 768px) {
+
+  .hero-section {
+    margin-top: 1.25rem;
+  }
+
   .info-section {
     margin: 5rem 2rem;
   }
@@ -746,6 +751,11 @@ button.hamburger.open {
 
 
 @media (max-width: 408px) {
+
+  .hero-section {
+    margin-top: 1.65rem;
+  }
+
   .info-section {
     padding: 2rem 1.5rem;
   }
