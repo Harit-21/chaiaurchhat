@@ -160,7 +160,9 @@ def add_pg():
         "description": data.get("description", ""),
         "image": data.get("image", ""),
         "location": location_str,
-        "inside_campus": data.get("inside_campus")
+        "inside_campus": data.get("inside_campus"),
+        "latitude": data.get("latitude"),
+        "longitude": data.get("longitude")
     }
 
     resp = requests.post(

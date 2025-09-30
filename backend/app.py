@@ -1,97 +1,103 @@
 from flask import Flask, request, jsonify
-from transformers import pipeline
+from transformers import pipeline, BartTokenizer
 import nltk
-from nltk.tokenize.punkt import PunktSentenceTokenizer, PunktParameters
-from nltk.tokenize import sent_tokenize
+from nltk.tokenize.punkt import PunktSentenceTokenizer
 from flask_cors import CORS
 
 nltk.download('punkt')
-tokenizer = PunktSentenceTokenizer()
 
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:5173"])  # Allow your React frontend
+CORS(app, origins=["http://localhost:5173", "https://chaiaurchhat.vercel.app"])
 
-# Load the summarizer once at startup
+model_name = "sshleifer/distilbart-cnn-12-6"
+#summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
 
-# summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
-summarizer = pipeline("summarization", model="google/pegasus-xsum")
+tokenizer = BartTokenizer.from_pretrained(model_name)
+summarizer = pipeline("summarization", model=model_name)
 
+sentence_tokenizer = PunktSentenceTokenizer()
+
+MAX_TOKENS = 1024  # BART-large-CNN max tokens per input
+
+def chunk_text(text, max_tokens=MAX_TOKENS):
+    sentences = sentence_tokenizer.tokenize(text)
+    chunks = []
+    current_chunk = []
+    current_len = 0
+
+    for sentence in sentences:
+        sentence_len = len(tokenizer.tokenize(sentence))
+        if current_len + sentence_len > max_tokens:
+            chunks.append(" ".join(current_chunk))
+            current_chunk = [sentence]
+            current_len = sentence_len
+        else:
+            current_chunk.append(sentence)
+            current_len += sentence_len
+
+    if current_chunk:
+        chunks.append(" ".join(current_chunk))
+
+    return chunks
+
+def dynamic_summary_length(chunk_text):
+    length = len(tokenizer.tokenize(chunk_text))
+    max_length = min(140, max(100, length // 3))
+    min_length = min(80, max(50, length // 6))
+    return min_length, max_length
 
 @app.route("/summarize", methods=["POST"])
 def summarize():
     try:
         data = request.get_json(force=True)
-        print("🔹 Received data:", data)  # 👈 log input
         reviews = data.get("reviews", [])
 
         if not reviews:
             return jsonify({"summary": "No reviews provided."}), 400
 
-        # Extract valid comments
         comments = [r.get("comment", "").strip() for r in reviews if r.get("comment")]
         if not comments:
             return jsonify({"summary": "No valid review comments found."}), 400
 
-        text = " ".join(comments)
-        sentences = tokenizer.tokenize(text)
-        print("🔹 Tokenized sentences:", sentences)  # 👈 log tokenized input
-
-        chunks = [" ".join(sentences[i:i + 5]) for i in range(0, len(sentences), 5)]
-        print("🔹 Text chunks:", chunks)  # 👈 log chunks sent to model
-
-        # summaries = []
-        # for chunk in chunks:
-        #     if chunk.strip():
-        #         result = summarizer(chunk, max_length=60, min_length=25, do_sample=False)
-        #         summaries.append(result[0]["summary_text"])
+        full_text = " ".join(comments)
+        chunks = chunk_text(full_text)
 
         summaries = []
         for i, chunk in enumerate(chunks):
-            input_len = len(chunk.split())
-            print(f"\n🔸 Chunk {i+1} ({input_len} words):\n{chunk}\n")
+            min_len, max_len = dynamic_summary_length(chunk)
 
-            result = summarizer(
-                chunk,
-                max_length=min(60, input_len),
-                min_length=15,
-                do_sample=False
-            )
+            try:
+                result = summarizer(
+                    chunk,
+                    max_length=max_len,
+                    min_length=min_len,
+                    do_sample=False,
+                    truncation=True
+                )
+                summaries.append(result[0]['summary_text'])
+            except Exception as e:
+                print(f"❌ Error summarizing chunk {i+1}: {e}")
+                summaries.append(chunk)
 
-            print("🔹 Model summary:", result)
-            summaries.append(result[0]["summary_text"])
+        if len(summaries) > 1:
+            combined_summary_text = " ".join(summaries)
+            min_len, max_len = dynamic_summary_length(combined_summary_text)
 
-        # summaries = []
+            try:
+                final_result = summarizer(
+                    combined_summary_text,
+                    max_length=max_len,
+                    min_length=min_len,
+                    do_sample=False,
+                    truncation=True
+                )
+                final_summary = final_result[0]['summary_text']
+            except Exception as e:
+                print(f"❌ Error in final summary step: {e}")
+                final_summary = combined_summary_text
+        else:
+            final_summary = summaries[0]
 
-        # for i, chunk in enumerate(chunks):
-        #     input_len = len(chunk.split())
-        #     print(f"\n🔸 Chunk {i+1} ({input_len} words):\n{chunk}\n")
-
-        #     # Skip chunks that are too short to summarize meaningfully
-        #     if input_len < 10:
-        #         print("⚠️ Chunk too short to summarize well. Appending as-is.")
-        #         summaries.append(chunk)
-        #         continue
-
-        #     # Dynamically calculate summary length
-        #     max_len = min(80, max(30, input_len))   # cap at 80 tokens
-        #     min_len = min(25, max(10, input_len // 3))  # floor and relative min
-
-        #     try:
-        #         result = summarizer(
-        #             chunk,
-        #             max_length=max_len,
-        #             min_length=min_len,
-        #             do_sample=False,  # deterministic
-        #             truncation=True
-        #         )
-        #         print("🔹 Model summary:", result)
-        #         summaries.append(result[0]["summary_text"])
-
-        #     except Exception as e:
-        #         print("❌ Error summarizing chunk:", e)
-        #         summaries.append(chunk)  # fallback
-
-        final_summary = " ".join(summaries)
         return jsonify({"summary": final_summary})
 
     except Exception as e:

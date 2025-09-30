@@ -19,6 +19,7 @@
   opacity: 1;
   transition: opacity 0.5s ease-out;
   pointer-events: all;
+  animation: floatUpDown 3s ease-in-out infinite;
 }
 
 .loader-logo-container.fade-out {
@@ -115,4 +116,16 @@
 
 .logo-cup {
   filter: drop-shadow(0 0 10px rgba(255, 190, 100, 0.4));
+}
+
+@keyframes floatUpDown {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-10px) scale(1.02);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
 }

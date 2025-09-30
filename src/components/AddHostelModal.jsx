@@ -5,6 +5,12 @@ import 'react-toastify/dist/ReactToastify.css';
 import '../css/AddHostelModal.css';
 import { apiUrl } from '../api';
 import FloatingLabelDropdown from './CollegePage/FloatingLabelDropdown';
+import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
+import { MapContainer, TileLayer, useMap } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import 'leaflet-geosearch/dist/geosearch.css';
+import DraggableMarker from './CollegePage/DraggableMarker';
+
 
 const AddHostelModal = ({ onClose, defaultCollegeId = null }) => {
     const [colleges, setColleges] = useState([]);
@@ -142,10 +148,62 @@ const AddHostelModal = ({ onClose, defaultCollegeId = null }) => {
 
     // Select a college from dropdown
     const handleCollegeSelect = (college) => {
-        setFormData(prev => ({ ...prev, college_id: college.id, inside_campus: '' })); // reset inside_campus
+        setFormData(prev => ({ ...prev, college_id: college.id, inside_campus: '', latitude: college.latitude, longitude: college.longitude, })); // reset inside_campus
         setSearchTerm(college.name);
         setDropdownOpen(false);
     };
+
+    const SearchControl = ({ onSearchResult }) => {
+        const map = useMap();
+
+        useEffect(() => {
+            const provider = new OpenStreetMapProvider({
+                params: {
+                    countrycodes: 'in', // Limit results to India
+                    viewbox: [68.0, 35.0, 97.0, 6.0], // Rough bounding box for India
+                    bounded: 1
+                }
+            });
+
+            const searchControl = new GeoSearchControl({
+                provider,
+                showMarker: false, // We'll handle our own marker
+                showPopup: false,
+                retainZoomLevel: false,
+                animateZoom: true,
+                autoClose: true,
+                searchLabel: 'Search PG/Hostel/Place...',
+            });
+
+            map.addControl(searchControl);
+
+            // Listen for search results
+            map.on('geosearch/showlocation', (result) => {
+                const { x: lng, y: lat } = result.location;
+                if (onSearchResult) {
+                    onSearchResult({ lat, lng });
+                }
+            });
+
+            return () => {
+                map.removeControl(searchControl);
+            };
+        }, [map, onSearchResult]);
+
+        return null;
+    };
+
+    const MapRecenter = ({ lat, lng }) => {
+        const map = useMap();
+        useEffect(() => {
+            if (!isNaN(lat) && !isNaN(lng)) {
+                map.setView([lat, lng]);
+            }
+        }, [lat, lng, map]);
+
+        return null;
+    };
+
 
     // Reset the whole form
     const resetForm = () => {
@@ -310,6 +368,7 @@ const AddHostelModal = ({ onClose, defaultCollegeId = null }) => {
         'Gender',
         'Food',
         'Image',
+        'Map Location',
         'Review'
     ];
 
@@ -450,6 +509,78 @@ const AddHostelModal = ({ onClose, defaultCollegeId = null }) => {
                 );
 
             case 6:
+                const college = colleges.find(c => c.id === formData.college_id);
+                const defaultPosition = [
+                    parseFloat(formData.latitude || college?.latitude || 28.6139),
+                    parseFloat(formData.longitude || college?.longitude || 77.2090)
+                ];
+
+                const handleManualLatLngChange = (type, value) => {
+                    const num = parseFloat(value);
+                    if (!isNaN(num)) {
+                        setFormData(prev => ({
+                            ...prev,
+                            [type]: num
+                        }));
+                    }
+                };
+
+                return (
+                    <div className="map-step-container">
+                        <label>Select PG Location on Map</label>
+                        <MapContainer
+                            center={defaultPosition}
+                            zoom={16}
+                            style={{ height: "300px", width: "100%" }}
+                        >
+                            <TileLayer
+                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                attribution="© OpenStreetMap contributors"
+                            />
+                            <SearchControl
+                                onSearchResult={({ lat, lng }) =>
+                                    setFormData(prev => ({ ...prev, latitude: lat, longitude: lng }))
+                                }
+                            />
+                            <DraggableMarker
+                                position={defaultPosition}
+                                onPositionChange={({ lat, lng }) =>
+                                    setFormData(prev => ({ ...prev, latitude: lat, longitude: lng }))
+                                }
+                            />
+                            <MapRecenter lat={formData.latitude} lng={formData.longitude} />
+                        </MapContainer>
+
+                        {/* Fallback message */}
+                        <div className="map-help-text">
+                            <span role="img" aria-label="info">💡</span> Can’t find your PG in search? Just drag the marker to its exact location on the map.
+                        </div>
+
+                        {/* Manual coordinate input fallback */}
+                        <div className="manual-coordinates">
+                            <label htmlFor="latitude">Latitude</label>
+                            <input
+                                id="latitude"
+                                type="number"
+                                step="0.000001"
+                                value={formData.latitude || ''}
+                                onChange={e => handleManualLatLngChange('latitude', e.target.value)}
+                            />
+                            <label htmlFor="longitude">Longitude</label>
+                            <input
+                                id="longitude"
+                                type="number"
+                                step="0.000001"
+                                value={formData.longitude || ''}
+                                onChange={e => handleManualLatLngChange('longitude', e.target.value)}
+                            />
+                            <small className="map-help-text">💡 You can also manually enter coordinates if the marker or search isn't precise.</small>
+                        </div>
+                    </div>
+                );
+
+
+            case 7:
                 return (
                     <div className="ahm-review-step step-page">
                         <h3>Review Your Details</h3>
@@ -459,8 +590,10 @@ const AddHostelModal = ({ onClose, defaultCollegeId = null }) => {
                             <li onClick={() => setStep(2)}><b>Inside/Outside Campus:</b> {formData.inside_campus}</li>
                             <li onClick={() => setStep(3)}><b>Gender Type:</b> {formData.gender_type}</li>
                             <li onClick={() => setStep(4)}><b>Food Provided:</b> {formData.has_food}</li>
+                            <li onClick={() => setStep(6)}>
+                                <b>Coordinates:</b> {formData.latitude && formData.longitude ? `${formData.latitude.toFixed(6)}, ${formData.longitude.toFixed(6)}` : 'Not set'}
+                            </li>
                             <li onClick={() => setStep(5)}>
-                                {/* <b>Image:</b><br /> */}
                                 {formData.image && !imageError ? (
                                     <img src={formData.image} alt="Preview" className="ahm-image-preview visible" />
                                 ) : (
@@ -472,8 +605,8 @@ const AddHostelModal = ({ onClose, defaultCollegeId = null }) => {
                             Click any field above to edit.
                         </p>
                     </div>
-
                 );
+
 
             default:
                 return null;

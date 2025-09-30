@@ -17,6 +17,10 @@ import { Helmet } from 'react-helmet-async';
 import { useQuery } from '@tanstack/react-query';
 import { fetchAllPGs, fetchPGDetail, fetchRecommendations } from '../api/PgPageQueries';
 import PhotoGalleryModal from '../components/PGDetailPage/PhotoGalleryModal';
+import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import RoutingControl from '../components/PGDetailPage/RoutingControl';
 
 const PGDetailPage = () => {
     const { pgName, collegeName } = useParams();
@@ -25,10 +29,62 @@ const PGDetailPage = () => {
     const { user } = useAuth();
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [showGallery, setShowGallery] = useState(false);
-    const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-
+    const [distance, setDistance] = useState(null);
+    const [locationLoading, setLocationLoading] = useState(false);
+    const [routeInfo, setRouteInfo] = useState(null);
 
     const siteName = import.meta.env.VITE_CAC_SITE_NAME;
+
+    const [userLocation, setUserLocation] = useState(null);
+    const [locationError, setLocationError] = useState(null);
+    const [locationAsked, setLocationAsked] = useState(false);
+
+    const askForLocation = () => {
+        setLocationAsked(true);
+        setLocationLoading(true); // start loading
+
+        if (!navigator.geolocation) {
+            setLocationError("Geolocation is not supported by your browser.");
+            setLocationLoading(false);
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const userLat = position.coords.latitude;
+                const userLng = position.coords.longitude;
+                setUserLocation({ lat: userLat, lng: userLng });
+                setLocationError(null);
+            },
+            (error) => {
+                switch (error.code) {
+                    case error.PERMISSION_DENIED:
+                        setLocationError("Location access denied. Please enable it in your browser settings.");
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        setLocationError("Location information is unavailable.");
+                        break;
+                    case error.TIMEOUT:
+                        setLocationError("Location request timed out.");
+                        break;
+                    default:
+                        setLocationError("An unknown error occurred.");
+                }
+                setLocationLoading(false); // end loading
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0,
+            }
+        );
+    };
+    useEffect(() => {
+        if (routeInfo) {
+            setLocationLoading(false);
+        }
+    }, [routeInfo]);
+
 
     // Fetch PG details
     const {
@@ -167,7 +223,12 @@ const PGDetailPage = () => {
         tags: img.tags || img.imageTags || [],
     }));
 
-
+    delete L.Icon.Default.prototype._getIconUrl;
+    L.Icon.Default.mergeOptions({
+        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+    });
 
     // Now conditionally render based on loading or error
     if (isPGDetailLoading) return <FullPageLoader />;
@@ -317,6 +378,81 @@ const PGDetailPage = () => {
                                 {pg.inside_campus || "Unknown"}
                             </span></p>
                         </section>
+                        {pg.latitude && pg.longitude && (
+                            <div className='mappd'>
+                                <h3>📍 Location on Map</h3>
+
+                                <MapContainer
+                                    center={[pg.latitude, pg.longitude]}
+                                    zoom={16}
+                                    style={{ height: '300px', width: '100%', borderRadius: '10px', overflow: 'hidden', zIndex: '0' }}
+                                    scrollWheelZoom={false}
+                                >
+                                    <TileLayer
+                                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                        attribution="© OpenStreetMap contributors"
+                                    />
+                                    <Marker position={[pg.latitude, pg.longitude]} />
+
+                                    {userLocation && (
+                                        <RoutingControl
+                                            start={[userLocation.lat, userLocation.lng]}
+                                            end={[pg.latitude, pg.longitude]}
+                                            onRouteFound={setRouteInfo}
+                                        />
+                                    )}
+                                </MapContainer>
+
+                                <div className="myloc">
+                                    {!userLocation && !locationAsked && (
+                                        <button
+                                            className="use-location-button"
+                                            onClick={askForLocation}
+                                        >
+                                            📍 Use My Location for Directions
+                                        </button>
+                                    )}
+
+                                    {locationLoading && (
+                                        <div className="location-ray-wrapper">
+                                            <span role="img" aria-label="user">📍</span>
+                                            <div className="location-ray">
+                                                <div className="ray-dot"></div>
+                                            </div>
+                                            <span role="img" aria-label="pg">🏠</span>
+                                        </div>
+                                    )}
+
+                                    {userLocation && routeInfo && (
+                                        <p className="use-location-button">
+                                            🧭 You're <strong>{routeInfo.distanceInKm} km</strong> away from {pg.name}.
+                                            {/* (~ <strong>{routeInfo.formattedDuration}</strong> by road) */}
+                                        </p>
+                                    )}
+
+                                    {locationError && (
+                                        <div style={{ color: 'red', marginTop: '0.5rem' }}>
+                                            ⚠️ {locationError}
+                                        </div>
+                                    )}
+
+                                    <hr class="vertical-hr" />
+
+                                    {pg.latitude && pg.longitude && (
+                                        <a
+                                            href={`https://www.google.com/maps/search/?api=1&query=${pg.latitude},${pg.longitude}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="open-google-maps-button"
+                                        >
+                                            Open in Google Maps
+                                        </a>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+
                         <RealityCheck />
 
                     </div>

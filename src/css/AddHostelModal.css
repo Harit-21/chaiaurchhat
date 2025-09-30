@@ -301,6 +301,47 @@
     user-select: none;
 }
 
+
+/* MAPPED STEP */
+.map-step-container {
+    overflow-y: auto;
+    max-height: 28rem;
+}
+
+.manual-coordinates {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.manual-coordinates label {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.manual-coordinates input {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.manual-note {
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: #666;
+}
+
+.map-help-text {
+    text-align: center;
+    color: #555;
+    margin-top: 2px;
+    font-size: 0.75rem;
+    font-style: italic;
+}
+
 /* Buttons */
 .ahm-submit-btn,
 .ahm-nav-btn {
@@ -358,6 +399,11 @@
 }
 
 /* Review Step */
+.ahm-review-step{
+    overflow-y: auto;
+    max-height: 28rem;
+}
+
 .ahm-review-step h3 {
     font-weight: 600;
     text-decoration: underline;
@@ -418,12 +464,15 @@
         gap: 0;
     }
 
-    .ahm-subtext{
+    .ahm-subtext {
         margin-bottom: 1rem;
     }
 
+    .map-step-container {
+        max-height: 23.5rem;
+    }
+
     .ahm-review-step {
-        overflow-y: scroll;
         max-height: 24rem;
     }
 }
