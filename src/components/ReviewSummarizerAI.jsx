@@ -5,39 +5,34 @@ const ReviewSummarizerFlask = ({ reviews }) => {
     const [summary, setSummary] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    const apiUrl = import.meta.env.VITE_API_URL;
-
 
     useEffect(() => {
-  const fetchSummary = async () => {
-    if (!apiUrl) {
-      setError("API URL not configured.");
-      setLoading(false);
-      return;
-    }
+        const fetchSummary = async () => {
+            if (!reviews || reviews.length === 0) {
+                setSummary("No reviews to summarize.");
+                setLoading(false);
+                return;
+            }
 
-    if (!reviews || reviews.length === 0) {
-      setSummary("No reviews to summarize.");
-      setLoading(false);
-      return;
-    }
+            try {
+                const res = await axios.post("https://chaiaurchhat.onrender.com/summarize", {
+                     reviews,
 
-    try {
-      const res = await axios.post(`${apiUrl}/summarize`, { reviews });
-      setSummary(res.data.summary);
-      setError("");
-    } catch (err) {
-      console.error("Failed to fetch summary:", err);
-      setSummary("");
-      setError("Could not generate summary.");
-    } finally {
-      setLoading(false);
-    }
-  };
+                });
 
-  fetchSummary();
-}, [reviews, apiUrl]);
+                setSummary(res.data.summary);
+                setError("");
+            } catch (err) {
+                console.error("Failed to fetch summary:", err);
+                setSummary("");
+                setError("Could not generate summary.");
+            } finally {
+                setLoading(false);
+            }
+        };
 
+        fetchSummary();
+    }, [reviews]);
 
     return (
         <section className="pg-summary-box">

@@ -7,7 +7,8 @@ from flask_cors import CORS
 nltk.download('punkt')
 
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:5173", "https://chaiaurchhat.vercel.app"])
+CORS(app, resources={r"/*": {"origins": ["http://localhost:5173", "https://chaiaurchhat.vercel.app"]}}, supports_credentials=True)
+
 
 model_name = "sshleifer/distilbart-cnn-12-6"
 #summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
