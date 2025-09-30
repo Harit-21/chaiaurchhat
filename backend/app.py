@@ -7,7 +7,10 @@ from flask_cors import CORS
 nltk.download('punkt')
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": ["https://chaiaurchhat.vercel.app"]}}, supports_credentials=True)
+CORS(app, resources={r"/summarize": {"origins": [
+    "http://localhost:5173",
+    "https://chaiaurchhat.vercel.app"
+]}}, methods=["POST", "OPTIONS"])
 
 
 model_name = "sshleifer/distilbart-cnn-12-6"
@@ -47,8 +50,11 @@ def dynamic_summary_length(chunk_text):
     min_length = min(80, max(50, length // 6))
     return min_length, max_length
 
-@app.route("/summarize", methods=["POST"])
+@app.route("/summarize", methods=["POST", "OPTIONS"])
 def summarize():
+    if request.method == "OPTIONS":
+        return jsonify({"message": "CORS preflight"}), 200
+
     try:
         data = request.get_json(force=True)
         reviews = data.get("reviews", [])

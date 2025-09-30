@@ -15,7 +15,7 @@ const ReviewSummarizerFlask = ({ reviews }) => {
             }
 
             try {
-                const res = await axios.post("https://chaiaurchhat.onrender.com/summarize", {
+                const res = await axios.post(`${import.meta.env.VITE_API_URL}/summarize`, {
                      reviews,
 
                 });
@@ -25,7 +25,7 @@ const ReviewSummarizerFlask = ({ reviews }) => {
             } catch (err) {
                 console.error("Failed to fetch summary:", err);
                 setSummary("");
-                setError("¯\_(ツ)_/¯.");
+                setError("¯|_(ツ)_/¯.");
             } finally {
                 setLoading(false);
             }
