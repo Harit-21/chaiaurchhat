@@ -564,6 +564,7 @@ h4 {
    ========================= */
 .review-filters-container {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   align-items: center;
   padding: 11px 0;
@@ -576,7 +577,7 @@ h4 {
 .review-filters-container .filter-buttons,
 .sort-buttons {
   display: flex;
-  flex-wrap: nowrap;
+  /* flex-wrap: nowrap; */
   gap: 8px;
 }
 

@@ -25,7 +25,7 @@ const ReviewSummarizerFlask = ({ reviews }) => {
             } catch (err) {
                 console.error("Failed to fetch summary:", err);
                 setSummary("");
-                setError("Could not generate summary.");
+                setError("¯\_(ツ)_/¯.");
             } finally {
                 setLoading(false);
             }
